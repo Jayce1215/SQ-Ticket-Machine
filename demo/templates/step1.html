@@ -10,22 +10,22 @@
         <h1>Step 1: Describe Your Issue</h1>
         <form action="{{ url_for('step2') }}" method="post">
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Your name" required>
+            <input type="text" id="name" name="name" placeholder="Your name" >
 
             <label for="contactNum">Contact:</label>
-            <input type="tel" id="contactNum" name="contactNum" placeholder="Your contact number" required>
+            <input type="tel" id="contactNum" name="contactNum" placeholder="Your contact number" >
 
             <label for="location">Location:</label>
-            <input type="text" id="location" name="location" placeholder="Your location" required>
+            <input type="text" id="location" name="location" placeholder="Your location" >
 
             <label for="modelNum">Model Number:</label>
-            <input type="text" id="modelNum" name="modelNum" placeholder="Model number" required>
+            <input type="text" id="modelNum" name="modelNum" placeholder="Model number" >
 
             <label for="serialNum">Serial Number:</label>
-            <input type="text" id="serialNum" name="serialNum" placeholder="Serial number" required>
+            <input type="text" id="serialNum" name="serialNum" placeholder="Serial number" >
 
             <label for="issue">What's the issue? Please tell us as specific as you can:</label>
-            <textarea id="issue" name="issue" placeholder="Describe the issue in detail" required></textarea>
+            <textarea id="issue" name="issue" placeholder="Describe the issue in detail" ></textarea>
             
             <div class="button-container">
                 <button type="submit" class="button">Next</button>

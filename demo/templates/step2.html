@@ -10,7 +10,7 @@
         <h1>Step 2: Upload Images</h1>
         <form action="{{ url_for('step3') }}" method="post" enctype="multipart/form-data">
             <label for="file">Upload image:</label>
-            <input type="file" id="file" name="file" required>
+            <input type="file" id="file" name="file" >
             
             <input type="hidden" name="name" value="{{ name }}">
             <input type="hidden" name="contactNum" value="{{ contactNum }}">
