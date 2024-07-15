@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation - Service Quick</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="confirm-container">
+        <h1>Ticket Confirmation</h1>
+        <div class="ticket-info">
+            <p><b>Customer Name:</b> {{ name }}</p>
+            <p><b>Contact Number:</b> {{ contactNum }}</p>
+            <p><b>Location:</b> {{ location }}</p>
+            <p><b>Model Number:</b> {{ modelNum }}</p>
+            <p><b>Serial Number:</b> {{ serialNum }}</p>
+            <p><b>Issue:</b> {{ issue }}</p>
+        </div>
+        <div class="description">
+            <p>{{ content }}</p>
+        </div>
+        <div class="image">
+            <p><b>Uploaded Image:</b></p>
+            <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" style="max-width: 100%; height: auto;">
+        </div>
+    </div>
+</body>
+</html>
