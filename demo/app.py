@@ -12,10 +12,6 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
 
 
-client = openai.OpenAI(
-        api_key=os.environ.get("OPENAI_API_KEY")
-    )
-
 def generate_content(name, contactNum, location, modelNum, serialNum, issue, filename):
     prompt = f"""
     Customer Name: {name}
@@ -26,7 +22,7 @@ def generate_content(name, contactNum, location, modelNum, serialNum, issue, fil
     Issue: {issue}
     Uploaded File: {filename}
 
-    Please generate organized content describing dianosis with the model, the defect and action plan based on the above details. Do not metion the customer's info.
+     generate organized content describing dianosis with the model, the defect and action plan based on the above details. Do not metion the customer's info.
     """
     response = client.chat.completions.create(
         messages=[
@@ -89,7 +85,8 @@ def confirm():
     issue = request.form['issue']
     filename = request.form['filename']
     
-    content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename)
+    # content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename)
+    content = 'generated content'
     
     return render_template('confirm.html', content=content, name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename)
 
@@ -98,4 +95,4 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port = 8000,debug=True)
