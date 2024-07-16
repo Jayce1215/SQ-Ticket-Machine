@@ -2,12 +2,12 @@ import os
 import openai
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from dotenv import load_dotenv
-from product import product_data
+from demo.product import product_data
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='demo/templates', static_folder='demo/static')
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['SECRET_KEY'] = os.urandom(24)
 
