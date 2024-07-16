@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Step 3 - Service Quick</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='step3.css') }}">
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const dateInput = document.getElementById('date');
+            const dateContainer = document.getElementById('date-container');
+            
+            dateContainer.addEventListener('click', () => {
+                dateInput.click();
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Step 3: Choose a Date</h1>
-        <form action="{{ url_for('confirm') }}" method="post">
-            <label for="date">Select date:</label>
-            <input type="date" id="date" name="date" required onclick="this.showPicker()">
-            
+        <form class="step-form" action="{{ url_for('confirm') }}" method="post">
             <input type="hidden" name="name" value="{{ name }}">
             <input type="hidden" name="contactNum" value="{{ contactNum }}">
             <input type="hidden" name="location" value="{{ location }}">
@@ -19,13 +26,20 @@
             <input type="hidden" name="serialNum" value="{{ serialNum }}">
             <input type="hidden" name="issue" value="{{ issue }}">
             <input type="hidden" name="filename" value="{{ filename }}">
-
+            <input type="hidden" name="warrantyStatus" value="{{ warranty_status }}">
+            
+            <label for="date">Select date:</label>
+            <div id="date-container" style="width: 80%; margin: 0 auto;">
+                <input type="date" id="date" name="date" required style="width: 100%;">
+            </div>
+            
             <div class="button-container">
-                <button type="button" class="button back-button" onclick="window.history.back();">Back</button>
+                <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
                 <button type="submit" class="button">Confirm</button>
             </div>
         </form>
     </div>
 </body>
 </html>
+
 

@@ -2,12 +2,14 @@ import os
 import openai
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from dotenv import load_dotenv
+from demo.product import product_data
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='demo/templates', static_folder='demo/static')
 app.config['UPLOAD_FOLDER'] = 'uploads/'
+<<<<<<< HEAD:demo/app.py
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
 
@@ -37,9 +39,20 @@ def generate_content(name, contactNum, location, modelNum, serialNum, issue, fil
 
     return content
 
+=======
+app.config['SECRET_KEY'] = os.urandom(24)
+>>>>>>> 55dc54b4a164b11c87d13d11d3a67f6e5335f75d:app.py
 
+def generate_content(name, contactNum, location, modelNum, serialNum, issue, filename, warranty_status):
+    product_type = product_data.get(modelNum, ("Unknown", "Unknown"))[0]
+    product_category = product_data.get(modelNum, ("Unknown", "Unknown"))[1]
+    return f"""name:{name}, contactNum:{contactNum}, location:{location}, modelNum:{modelNum}, serialNum:{serialNum}, issue:{issue}, filename:{filename}, product_type:{product_type}, product_category:{product_category}, warranty_status:{warranty_status}"""
 
 @app.route('/')
+def landing():
+    return render_template('landing.html')
+
+@app.route('/step1')
 def step1():
     return render_template('step1.html')
 
@@ -51,7 +64,9 @@ def step2():
     modelNum = request.form['modelNum']
     serialNum = request.form['serialNum']
     issue = request.form['issue']
-    return render_template('step2.html', name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue)
+    warranty_status = request.form['warrantyStatus']
+
+    return render_template('step2.html', name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, warranty_status=warranty_status)
 
 @app.route('/step3', methods=['POST'])
 def step3():
@@ -61,18 +76,15 @@ def step3():
     modelNum = request.form['modelNum']
     serialNum = request.form['serialNum']
     issue = request.form['issue']
-    
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    if file:
+    warranty_status = request.form['warrantyStatus']
+
+    file = request.files.get('file')
+    filename = None
+    if file and file.filename != '':
         filename = file.filename
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return render_template('step3.html', name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename)
+
+    return render_template('step3.html', name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename, warranty_status=warranty_status)
 
 @app.route('/confirm', methods=['POST'])
 def confirm():
@@ -84,15 +96,26 @@ def confirm():
     serialNum = request.form['serialNum']
     issue = request.form['issue']
     filename = request.form['filename']
+    warranty_status = request.form['warrantyStatus']
+
+    content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename,warranty_status)
     
+<<<<<<< HEAD:demo/app.py
     # content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename)
     content = 'generated content'
     
     return render_template('confirm.html', content=content, name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename)
+=======
+    return render_template('confirm.html', content=content, name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename, date=date, warranty_status=warranty_status)
+>>>>>>> 55dc54b4a164b11c87d13d11d3a67f6e5335f75d:app.py
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
+<<<<<<< HEAD:demo/app.py
     app.run(port = 8000,debug=True)
+=======
+    app.run(debug=True)
+>>>>>>> 55dc54b4a164b11c87d13d11d3a67f6e5335f75d:app.py
