@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Quick - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Service Quick</h1>
+        <p>Here are some options:</p>
+        <div class="button-container">
+            <a href="{{ url_for('step1') }}" class="button">Schedule</a>
+            <a href="#" class="button">Reschedule</a>
+            <a href="#" class="button">Cancel</a>
+        </div>
+        <p>Other questions? <a href="#" class="link"> QA ChatBot</a></p>
+    </div>
+</body>
+</html>
+

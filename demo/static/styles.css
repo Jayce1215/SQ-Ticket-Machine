@@ -1,41 +1,23 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #F7F8FA;
-    color: #333;
+/* Add this to the existing styles.css */
+input[type="date"] {
+    cursor: pointer;
 }
 
-.container {
-    width: 60%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #FFF;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin-top: 50px;
-    text-align: center;
-}
-
-h1 {
-    color: #F47C22;
-    font-size: 2em;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-form {
+/* Specific styles for step forms */
+.step-form {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-label {
+.step-form label {
     width: 100%;
     margin-top: 10px;
     font-weight: bold;
     text-align: left;
 }
 
-input[type="text"], input[type="tel"], textarea, input[type="date"] {
+.step-form input[type="text"], .step-form input[type="tel"], .step-form textarea, .step-form input[type="date"] {
     width: 80%;
     padding: 10px;
     margin-top: 5px;
@@ -46,18 +28,18 @@ input[type="text"], input[type="tel"], textarea, input[type="date"] {
     text-align: left;
 }
 
-textarea {
+.step-form textarea {
     width: 80%;
     height: 100px;
     resize: vertical;
 }
 
-.button-container {
+.step-form .button-container {
     width: 100%;
     text-align: center;
 }
 
-.button {
+.step-form .button {
     width: 30%;
     padding: 10px 0;
     background-color: #F47C22;
@@ -69,29 +51,14 @@ textarea {
     margin: 10px;
 }
 
-.button.back-button {
+.step-form .button.back-button {
     background-color: #838B97;
 }
 
-.button:hover {
+.step-form .button:hover {
     transform: scale(1.1);
 }
 
-button:focus {
+.step-form button:focus {
     outline: none;
-}
-
-.confirm-container {
-    width: 60%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #FFF;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin-top: 50px;
-    text-align: left;
-}
-
-.confirm-container h1 {
-    text-align: center;
 }

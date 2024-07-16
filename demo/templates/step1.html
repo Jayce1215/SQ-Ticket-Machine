@@ -3,12 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <title>Step 1 - Service Quick</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='step1.css') }}">
+    <script>
+        function checkWarranty() {
+            const serialNum = document.getElementById('serialNum').value;
+
+            // Define year and month decoding tables
+            const yearTable = {
+                'R': 2001, 'T': 2002, 'W': 2003, 'X': 2004, 'Y': 2005,
+                'L': 2006, 'P': 2007, 'Q': 2008, 'S': 2009, 'Z': 2010,
+                'B': 2011, 'C': 2012, 'D': 2013, 'F': 2014, 'G': 2015,
+                'H': 2016, 'J': 2017, 'K': 2018, 'M': 2019, 'N': 2020,
+                'R': 2021, 'T': 2022, 'W': 2023, 'X': 2024, 'Y': 2025,
+                'L': 2026, 'P': 2027, 'Q': 2028, 'S': 2029, 'Z': 2030,
+                'B': 2031, 'C': 2032, 'D': 2033, 'F': 2034, 'G': 2035,
+                'H': 2036, 'J': 2037, 'K': 2038, 'M': 2039, 'N': 2040
+            };
+            const monthTable = {
+                '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6,
+                '7': 7, '8': 8, '9': 9, 'A': 10, 'B': 11, 'C': 12
+            };
+
+            // Extract year and month codes from the serial number
+            const yearCode = serialNum.charAt(7);
+            const monthCode = serialNum.charAt(8);
+            
+            // Decode production year and month
+            const productionYear = yearTable[yearCode];
+            const productionMonth = monthTable[monthCode];
+            
+            if (productionYear === undefined || productionMonth === undefined) {
+                alert("Invalid Serial Number");
+                return;
+            }
+            
+            // Create production date
+            const productionDate = new Date(productionYear, productionMonth - 1, 1);
+            const currentDate = new Date();
+            
+            // Warranty period (1 year)
+            const warrantyEndDate = new Date(productionDate);
+            warrantyEndDate.setFullYear(productionDate.getFullYear() + 1);
+            
+            let warrantyStatus = "Out of Warranty";
+            if (currentDate <= warrantyEndDate) {
+                warrantyStatus = "In Warranty";
+            }
+            
+            // Display warranty status
+            document.getElementById('warrantyStatus').innerText = "Warranty Status: " + warrantyStatus;
+            document.getElementById('warrantyStatusInput').value = warrantyStatus; // Update hidden input
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Step 1: Describe Your Issue</h1>
-        <form action="{{ url_for('step2') }}" method="post">
+        <form class="step-form" action="{{ url_for('step2') }}" method="post">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" placeholder="Your name" >
 
@@ -23,14 +74,21 @@
 
             <label for="serialNum">Serial Number:</label>
             <input type="text" id="serialNum" name="serialNum" placeholder="Serial number" >
+            <button type="button" onclick="checkWarranty()">Check Warranty</button>
+
+            <p id="warrantyStatus"></p>
+            <input type="hidden" id="warrantyStatusInput" name="warrantyStatus" value="">
 
             <label for="issue">What's the issue? Please tell us as specific as you can:</label>
             <textarea id="issue" name="issue" placeholder="Describe the issue in detail" ></textarea>
             
+            
             <div class="button-container">
+                <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
                 <button type="submit" class="button">Next</button>
             </div>
         </form>
     </div>
 </body>
 </html>
+
