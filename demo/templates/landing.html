@@ -8,14 +8,28 @@
 <body>
     <div class="container">
         <h1>Welcome to Service Quick</h1>
-        <p>Here are some options:</p>
-        <div class="button-container">
+        <div class="button-container" >
             <a href="{{ url_for('step1') }}" class="button">Schedule</a>
             <a href="#" class="button">Reschedule</a>
-            <a href="#" class="button">Cancel</a>
+            <a href="#" class="button">Ticket Cancel</a>
+            <h2>Or</h2>
         </div>
-        <p>Other questions? <a href="#" class="link"> QA ChatBot</a></p>
     </div>
+    <div class="prompt-container">
+        <div class="prompt-messages" id="prompt-messages">
+            <!-- prompt messages will appear here -->
+        </div>
+        <div class="prompt-input-container">
+            <input type="text" id="prompt-input" placeholder="Type a message..." />
+        </div>
+    </div>
+
 </body>
 </html>
 
+<!-- 
+<div class="prompt-container">
+    <input type="text" id="promptbot" name="chatbot">
+    <label for="chatbot">Ask our Chatbot</label>
+    <div class="underline"></div>
+</div>     -->
