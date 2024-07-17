@@ -9,7 +9,6 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='demo/templates', static_folder='demo/static')
 app.config['UPLOAD_FOLDER'] = 'uploads/'
-<<<<<<< HEAD:demo/app.py
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
 
@@ -39,9 +38,7 @@ def generate_content(name, contactNum, location, modelNum, serialNum, issue, fil
 
     return content
 
-=======
 app.config['SECRET_KEY'] = os.urandom(24)
->>>>>>> 55dc54b4a164b11c87d13d11d3a67f6e5335f75d:app.py
 
 def generate_content(name, contactNum, location, modelNum, serialNum, issue, filename, warranty_status):
     product_type = product_data.get(modelNum, ("Unknown", "Unknown"))[0]
@@ -98,24 +95,16 @@ def confirm():
     filename = request.form['filename']
     warranty_status = request.form['warrantyStatus']
 
-    content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename,warranty_status)
-    
-<<<<<<< HEAD:demo/app.py
+    # content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename,warranty_status)
     # content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename)
     content = 'generated content'
     
     return render_template('confirm.html', content=content, name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename)
-=======
-    return render_template('confirm.html', content=content, name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename, date=date, warranty_status=warranty_status)
->>>>>>> 55dc54b4a164b11c87d13d11d3a67f6e5335f75d:app.py
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
-<<<<<<< HEAD:demo/app.py
     app.run(port = 8000,debug=True)
-=======
-    app.run(debug=True)
->>>>>>> 55dc54b4a164b11c87d13d11d3a67f6e5335f75d:app.py
+
