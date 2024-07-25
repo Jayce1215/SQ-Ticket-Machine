@@ -2,4 +2,4 @@ pandas==2.2.2
 gradio==4.37.2
 Flask==3.0.3
 openai==0.27.7
-sentence-transformer==3.0.1
+sentence-transformers==3.0.1
