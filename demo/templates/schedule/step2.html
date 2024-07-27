@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Step 2 - Service Quick</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='schedule_step2.css') }}">
+    <style>
+        .status-in {
+            color: blue;
+        }
+        .status-out {
+            color: red;
+        }
+        #previewBOS {
+            width: 200px;   /* Responsive width */
+            height: 200px;  /* Maintain aspect ratio */
+            display: none; /* Hide until an image is loaded */
+            margin-top: 20px; /* Space above the image */
+            margin-left: 39%;
+        }
+
+        .remove-btn {
+            display: none;
+            margin-top: 10px;
+            cursor: pointer;
+            margin-left: 45%;
+            font-family: 'open sans', sans-serif;
+        }
+    </style>
+    <script>
+        function checkWarranty() {
+        const serialNum = document.getElementById('serialNum').value;
+
+        // Define year and month decoding tables
+        const yearTable = {
+            'R': 2001, 'T': 2002, 'W': 2003, 'X': 2004, 'Y': 2005,
+            'L': 2006, 'P': 2007, 'Q': 2008, 'S': 2009, 'Z': 2010,
+            'B': 2011, 'C': 2012, 'D': 2013, 'F': 2014, 'G': 2015,
+            'H': 2016, 'J': 2017, 'K': 2018, 'M': 2019, 'N': 2020,
+            'R': 2021, 'T': 2022, 'W': 2023, 'X': 2024, 'Y': 2025,
+            'L': 2026, 'P': 2027, 'Q': 2028, 'S': 2029, 'Z': 2030,
+            'B': 2031, 'C': 2032, 'D': 2033, 'F': 2034, 'G': 2035,
+            'H': 2036, 'J': 2037, 'K': 2038, 'M': 2039, 'N': 2040
+        };
+        const monthTable = {
+            '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6,
+            '7': 7, '8': 8, '9': 9, 'A': 10, 'B': 11, 'C': 12
+        };
+
+        // Extract year and month codes from the serial number
+        const yearCode = serialNum.charAt(7);
+        const monthCode = serialNum.charAt(8);
+
+        // Decode production year and month
+        const productionYear = yearTable[yearCode];
+        const productionMonth = monthTable[monthCode];
+
+        if (productionYear === undefined || productionMonth === undefined) {
+            alert("Invalid Serial Number");
+            return;
+        }
+
+        // Create production date
+        const productionDate = new Date(productionYear, productionMonth - 1, 1);
+        const currentDate = new Date();
+
+        // Warranty period (1 year)
+        const warrantyEndDate = new Date(productionDate);
+        warrantyEndDate.setFullYear(productionDate.getFullYear() + 1);
+
+        const warrantyStatusInput = document.getElementById('warrantyStatus');
+        const statusDetailElement = document.getElementById('warrantyStatusText');
+        const warrantyStatusElement = document.getElementById('warrantyText');
+
+        if (currentDate <= warrantyEndDate) {
+            statusDetailElement.className = 'status-in';
+            statusDetailElement.textContent = "In Warranty";
+            warrantyStatusInput.value = "In Warranty"; // Update hidden input value
+        } else {
+            statusDetailElement.className = 'status-out';
+            statusDetailElement.textContent = "Out of Warranty";
+            warrantyStatusInput.value = "Out of Warranty"; // Update hidden input value
+        }
+
+        statusDetailElement.style.display = 'inline';
+        warrantyStatusElement.style.display = 'block';
+    }
+
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Step 2: Product Information</h1>
+        <form class="step-form" action="{{ url_for('step3') }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="name" value="{{ name }}">
+            <input type="hidden" name="contactNum" value="{{ contactNum }}">
+            <input type="hidden" name="address" value="{{ address }}">
+            <input type="hidden" name="city" value="{{ city }}">
+            <input type="hidden" name="state" value="{{ state }}">
+            <input type="hidden" name="zipcode" value="{{ zipcode }}">
+            <input type="hidden" name="email" value="{{ email }}">
+            
+            <label for="modelNum">Model Number:</label>
+            <input type="text" id="modelNum" name="modelNum" placeholder="e.g WA54R7600AC/US" >
+
+            <div class="warranty">
+                <h2>Check Warranty Status</h2>
+                <p class="manual" style="margin-left: 5%;">
+                    <p style="margin-left: 25%;">
+                    There are two ways to check the warranty status of your product:<br>
+
+                    #1. If the product is a new model, please enter the serial number of your product <br> in the field below  and click the "Check Warranty" button.<br>
+                </p>
+
+                <label for="serialNum" style="margin-left: 30%;">Serial Number: </label>
+                <input type="text" id="serialNum" name="serialNum" placeholder="e.g 01GE57BN800834D"  style="width: 29%; margin-left: 30%; ">
+
+                <button type="button" id=checkWarrantyButton onclick="checkWarranty()" style="margin-left: 15px; font-family: 'open sans', sans-serif;">Check Warranty</button>
+                <p id="warrantyText" style="display: none;color: black; margin-left: 30%; padding-top: 15px;">Warranty Status: <span id="warrantyStatusText" style="display: none;"></span></p>
+                <input type="hidden" id="warrantyStatus" name="warrantyStatus">
+
+                    <p style="margin-top: 35px; margin-left: 25%;">
+                    #2. If the product is not a new model, please upload the image of the BOS(bill of sale) of the product. <br> It will be verified after scheduling. <br>  
+                    </p>
+                    <p style="color:#F47C22; margin-bottom: 35px; margin-left: 25%;" >
+                    *Note: The BOS should contain below details: <br>
+                    <strong> 1. store header, 2. store info and address, 3.purchase date, 4. model, 5. price, and 6. payment method</strong>
+                </p>
+                </p>
+
+                <label>Upload the Bill of Sale:</label>
+                <input type="file" id="img_bos" name="img_bos" accept="image/*">
+                <img id="previewBOS" alt="BOS Image Preview">
+                <button type="button" class="remove-btn" onclick="removeImage('img_bos', 'previewBOS')">Remove</button>
+            </div>
+
+            <h2>Issue</h2>
+            <label for="issue">What's the issue? Please tell us as specific as you can:</label>
+            <textarea id="issue" name="issue" placeholder="e.g The icemaker is broken.." ></textarea>
+
+            <label>Upload images of the issue:</label>
+            <!-- Repeat this block for each file input -->
+            <label for="img_issue_1">Upload Image 1</label>
+            <input type="file" id="img_issue_1" name="img_issue_1" accept="image/*">
+            <img id="previewIssue_1" alt="Image Preview 1" style="display: none; width: 200px; height: 200px; margin-left: 39%; margin-top: 20px;">
+            <button type="button" class="remove-btn" onclick="removeImage('img_issue_1', 'previewIssue_1')">Remove</button>
+
+            <label for="img_issue_2">Upload Image 2</label>
+            <input type="file" id="img_issue_2" name="img_issue_2" accept="image/*">
+            <img id="previewIssue_2" alt="Image Preview 2" style="display: none; width: 200px; height: 200px; margin-left: 39%; margin-top: 20px;">
+            <button type="button" class="remove-btn" onclick="removeImage('img_issue_2', 'previewIssue_2')">Remove</button>
+
+            <label for="img_issue_3">Upload Image 3</label>
+            <input type="file" id="img_issue_3" name="img_issue_3" accept="image/*">
+            <img id="previewIssue_3" alt="Image Preview 3" style="display: none; width: 200px; height: 200px; margin-left: 39%; margin-top: 20px;">
+            <button type="button" class="remove-btn" onclick="removeImage('img_issue_3', 'previewIssue_3')">Remove</button>
+
+            <label for="img_issue_4">Upload Image 4</label>
+            <input type="file" id="img_issue_4" name="img_issue_4" accept="image/*">
+            <img id="previewIssue_4" alt="Image Preview 4" style="display: none; width: 200px; height: 200px; margin-left: 39%; margin-top: 20px;">
+            <button type="button" class="remove-btn" onclick="removeImage('img_issue_4', 'previewIssue_4')">Remove</button>
+            <button type="button" class="remove-btn" onclick="removeImage('img_issue', 'previewIssue')">Remove</button>
+
+            
+            <div class="button-container">
+                <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
+                <button type="submit" class="button">Next</button>
+            </div>
+        </form>
+    </div>
+
+<script>
+        document.getElementById('img_bos').addEventListener('change', function(event) {
+            loadImagePreview(this, 'previewBOS');
+        });
+
+
+        function loadImagePreview(input, previewId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var preview = document.getElementById(previewId);
+                    var removeBtn = preview.nextElementSibling; // Assumes the remove button is right after the preview
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    removeBtn.style.display = 'inline'; // Show the remove button
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function removeImage(inputId, previewId) {
+            var input = document.getElementById(inputId);
+            var preview = document.getElementById(previewId);
+            var removeBtn = preview.nextElementSibling; // Assumes the remove button is right after the preview
+            input.value = ""; // Clear the input value
+            preview.src = ""; // Remove the preview source
+            preview.style.display = 'none'; // Hide the preview
+            removeBtn.style.display = 'none'; // Hide the remove button
+        }
+
+        function setupImagePreview(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            input.addEventListener('change', function() {
+                const file = input.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById(previewId);
+                        var removeBtn = preview.nextElementSibling;
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        removeBtn.style.display = 'inline';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function removeImage(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            var removeBtn = preview.nextElementSibling;
+            input.value = ""; // Clear the file input
+            preview.src = ""; // Remove the image source
+            preview.style.display = 'none'; // Hide the preview
+            removeBtn.style.display = 'none'; // Hide the remove button
+
+        }
+
+        setupImagePreview('img_issue_1', 'previewIssue_1');
+        setupImagePreview('img_issue_2', 'previewIssue_2');
+        setupImagePreview('img_issue_3', 'previewIssue_3');
+        setupImagePreview('img_issue_4', 'previewIssue_4');
+</script>
+
+</body>
+</html>

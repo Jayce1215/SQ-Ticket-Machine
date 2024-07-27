@@ -1,6 +1,6 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #F7F8FA;
+    background-color: #FFF;
+    font-family: 'open sans', sans-serif;
     color: #333;
     margin: 0;
     padding: 0;
@@ -13,8 +13,6 @@ body {
     background-color: #FFF;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    margin-top: 50px;
-    text-align: center;
 }
 
 h1 {
@@ -34,13 +32,13 @@ h1 {
     width: 100%;
     margin-top: 10px;
     font-weight: bold;
-    text-align: left;
+    margin-left: 43%;
 }
 
-.step-form input[type="file"] {
-    width: 80%;
+.step-form input[type="text"], .step-form input[type="tel"], .step-form textarea, .step-form input[type="date"], .step-form input[type="email"] {
+    width: 55%;
     padding: 10px;
-    margin-top: 5px;
+    margin-top: 15px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -48,13 +46,27 @@ h1 {
     text-align: left;
 }
 
+input::placeholder {
+    font-family: 'open sans', sans-serif;
+    color: #888; /* Example color */
+    font-size: 17px; /* Example font size */
+}
+
+
+.step-form textarea {
+    width: 80%;
+    height: 100px;
+    resize: vertical;
+}
+
 .step-form .button-container {
     width: 100%;
     text-align: center;
+    margin-top: 25px;
 }
 
 .step-form .button {
-    width: 30%;
+    width: 20%;
     padding: 10px 0;
     background-color: #F47C22;
     color: #FFF;
@@ -63,14 +75,20 @@ h1 {
     cursor: pointer;
     transition: transform 0.2s;
     margin: 10px;
+    font-family: 'open sans', sans-serif;
+    font-size: 1rem;
+
 }
 
 .step-form .button.back-button {
     background-color: #838B97;
+    font-family: 'open sans', sans-serif;
 }
 
 .step-form .button:hover {
     transform: scale(1.1);
+    font-weight: bold;
+
 }
 
 .step-form button:focus {

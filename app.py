@@ -1,8 +1,12 @@
 import os
 import openai
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from demo.product import product_data
+import uuid
+import base64
+import logging
 
 # Load environment variables from .env file
 load_dotenv()
@@ -11,97 +15,126 @@ app = Flask(__name__, template_folder='demo/templates', static_folder='demo/stat
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
+logging.basicConfig(level=logging.INFO)
 
-
-def generate_content(name, contactNum, location, modelNum, serialNum, issue, filename):
-    prompt = f"""
-    Customer Name: {name}
-    Contact Number: {contactNum}
-    Location: {location}
-    Model Number: {modelNum}
-    Serial Number: {serialNum}
-    Issue: {issue}
-    Uploaded File: {filename}
-
-     generate organized content describing dianosis with the model, the defect and action plan based on the above details. Do not metion the customer's info.
-    """
-    response = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="gpt-3.5-turbo",
-    )
-    content = response.choices[0].message.content
-
-    return content
-
-app.config['SECRET_KEY'] = os.urandom(24)
-
-def generate_content(name, contactNum, location, modelNum, serialNum, issue, filename, warranty_status):
-    product_type = product_data.get(modelNum, ("Unknown", "Unknown"))[0]
-    product_category = product_data.get(modelNum, ("Unknown", "Unknown"))[1]
-    return f"""name:{name}, contactNum:{contactNum}, location:{location}, modelNum:{modelNum}, serialNum:{serialNum}, issue:{issue}, filename:{filename}, product_type:{product_type}, product_category:{product_category}, warranty_status:{warranty_status}"""
 
 @app.route('/')
 def landing():
     return render_template('landing.html')
 
-@app.route('/step1')
+@app.route('/schedule/step1')
 def step1():
-    return render_template('step1.html')
+    return render_template('schedule/step1.html')
 
-@app.route('/step2', methods=['POST'])
+@app.route('/schedule/step2', methods=['POST'])
 def step2():
     name = request.form['name']
     contactNum = request.form['contactNum']
-    location = request.form['location']
-    modelNum = request.form['modelNum']
-    serialNum = request.form['serialNum']
-    issue = request.form['issue']
-    warranty_status = request.form['warrantyStatus']
+    address = request.form['address']
+    city = request.form['city']
+    state = request.form['state']
+    zipcode = request.form['zipcode']
+    email = request.form['email']
 
-    return render_template('step2.html', name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, warranty_status=warranty_status)
+    return render_template('schedule/step2.html', name=name, contactNum=contactNum, address=address,  city=city, state=state, zipcode=zipcode, email=email)
 
-@app.route('/step3', methods=['POST'])
+
+@app.route('/schedule/step3', methods=['POST'])
 def step3():
     name = request.form['name']
     contactNum = request.form['contactNum']
-    location = request.form['location']
+    address = request.form['address']
     modelNum = request.form['modelNum']
     serialNum = request.form['serialNum']
+    city = request.form['city']
+    state = request.form['state']
+    zipcode = request.form['zipcode']
+    email = request.form['email']
     issue = request.form['issue']
-    warranty_status = request.form['warrantyStatus']
+    warrantyStatus = request.form['warrantyStatus']
 
-    file = request.files.get('file')
-    filename = None
-    if file and file.filename != '':
-        filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    def convert_to_base64(file):
+        file_content = file.read()
+        mime_type = file.mimetype
+        base64_image = base64.b64encode(file_content).decode('utf-8')
+        return f"data:{mime_type};base64,{base64_image}"
 
-    return render_template('step3.html', name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename, warranty_status=warranty_status)
+    img_issues = []
+    for i in range(1, 5):
+        file = request.files.get(f'img_issue_{i}')
+        if file and file.filename:
+            base64_image = convert_to_base64(file)
+            img_issues.append(base64_image)
+            logging.info(f'Encoded Issue Image {i}: {base64_image[:30]}...')  # Log first 30 chars for brevity
+
+    img_bos = request.files.get('img_bos')
+    if img_bos and img_bos.filename:
+        img_bos = convert_to_base64(img_bos)
+        logging.info(f'Encoded BOS Image: {img_bos[:30]}...')  # Log first 30 chars for brevity
+
+    return render_template('schedule/step3.html', name=name, issue=issue, contactNum=contactNum,
+                           address=address, modelNum=modelNum, serialNum=serialNum, img_bos=img_bos,
+                           img_issues=img_issues, warrantyStatus=warrantyStatus, city=city, state=state,
+                           zipcode=zipcode, email=email)
 
 @app.route('/confirm', methods=['POST'])
 def confirm():
-    date = request.form['date']
-    name = request.form['name']
-    contactNum = request.form['contactNum']
-    location = request.form['location']
-    modelNum = request.form['modelNum']
-    serialNum = request.form['serialNum']
-    issue = request.form['issue']
-    filename = request.form['filename']
-    warranty_status = request.form['warrantyStatus']
+    try:
+        unique_id = str(uuid.uuid4())
+        base_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+        os.makedirs(base_path, exist_ok=True)
 
-    # content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename,warranty_status)
-    # content = generate_content(name, contactNum, location, modelNum, serialNum, issue, filename)
-    content = 'generated content'
-    
-    return render_template('confirm.html', content=content, name=name, contactNum=contactNum, location=location, modelNum=modelNum, serialNum=serialNum, issue=issue, filename=filename)
+        issues_path = os.path.join(base_path, 'Issues')
+        bos_path = os.path.join(base_path, 'BOS')
+        os.makedirs(issues_path, exist_ok=True)
+        os.makedirs(bos_path, exist_ok=True)
 
-@app.route('/uploads/<filename>')
+        img_issues = []
+        for i in range(1, 5):
+            base64_str = request.form.get(f'img_issue_{i}')
+            if base64_str:
+                filename = f'issue_{i}.jpg'
+                file_path = os.path.join(issues_path, filename)
+                with open(file_path, "wb") as fh:
+                    fh.write(base64.b64decode(base64_str.split(",")[1]))
+                img_issues.append(url_for('uploaded_file', filename=f'{unique_id}/Issues/{filename}'))
+                logging.info(f'Saved Issue Image {filename} at {file_path}')
+
+        img_bos = request.form.get('img_bos')
+        bos_file_path = None
+        if img_bos:
+            filename = 'bos.jpg'
+            bos_file_path = os.path.join(bos_path, filename)
+            with open(bos_file_path, "wb") as fh:
+                fh.write(base64.b64decode(img_bos.split(",")[1]))
+            img_bos = url_for('uploaded_file', filename=f'{unique_id}/BOS/{filename}')
+            logging.info(f'Saved BOS Image {filename} at {bos_file_path}')
+
+        date = request.form['date']
+        name = request.form['name']
+        contactNum = request.form['contactNum']
+        address = request.form['address']
+        modelNum = request.form['modelNum']
+        product_type = product_data.get(modelNum, ("Unknown", "Unknown"))[0]
+        product_category = product_data.get(modelNum, ("Unknown", "Unknown"))[1]
+        serialNum = request.form['serialNum']
+        issue = request.form['issue']
+        city = request.form['city']
+        state = request.form['state']
+        zipcode = request.form['zipcode']
+        email = request.form['email']
+        warrantyStatus = request.form['warrantyStatus']
+
+        return render_template('schedule/confirm.html', name=name, contactNum=contactNum, address=address, modelNum=modelNum, 
+                               serialNum=serialNum, img_bos=img_bos, img_issues=img_issues, warrantyStatus=warrantyStatus, 
+                               city=city, state=state, zipcode=zipcode, email=email, issue=issue, date=date, 
+                               product_type=product_type, product_category=product_category, unique_id=unique_id)
+    except Exception as e:
+        logging.error(f'Error during confirmation: {e}')
+        return "An error occurred during the file upload process."
+
+
+@app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 

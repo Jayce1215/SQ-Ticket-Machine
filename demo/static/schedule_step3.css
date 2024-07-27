@@ -1,0 +1,197 @@
+body {
+    font-family: 'open sans', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+
+}
+
+.container {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-top: 50px;
+    text-align: center;
+}
+
+h1 {
+    color: #F47C22;
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2{
+    font-size: 1.5em;
+    margin-top: 25px;
+}
+.step-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.step-form label {
+    width: 100%;
+    margin-top: 10px;
+    margin-left: 43%;
+    font-weight: bold;
+    text-align: left;
+}
+
+.step-form input[type="text"], .step-form input[type="tel"], .step-form textarea, .step-form input[type="date"], .step-form input[type="email"] {
+    width: 80%;
+    padding: 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    text-align: left;
+}
+.step-form textarea{
+    width: 80%;
+    height: 100px;
+    font-family: 'open sans', sans-serif;
+    font-size: 17px; /* Example font size */
+    color: #888; /* Example color */
+
+
+}
+
+input::placeholder {
+    font-family: 'open sans', sans-serif;
+    color: #888; /* Example color */
+    font-size: 17px; /* Example font size */
+}
+
+
+.step-form .button-container {
+    width: 100%;
+    text-align: center;
+}
+
+
+.step-form .button {
+    width: 20%;
+    padding: 10px 0;
+    background-color: #F47C22;
+    color: #FFF;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin: 10px;
+    font-family: 'open sans', sans-serif;
+    font-size: 1rem;
+
+}
+
+.step-form .button.back-button {
+    background-color: #838B97;
+    font-family: 'open sans', sans-serif;
+}
+
+.step-form .button:hover {
+    transform: scale(1.1);
+    font-weight: bold;
+
+}
+.step-form button:focus {
+    outline: none;
+}
+
+.manual{
+    text-align: left;
+    font-size: 1em;
+}
+
+.custom-file-label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #333;
+    text-align: center;
+}
+
+.custom-file-input {
+    display: none; /* Hide the default file input */
+    text-align: center;
+
+}
+
+.custom-file-label::before {
+    content: "Choose File";
+    display: inline-block;
+    background-color: #F47C22;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    margin-right: 10px;
+}
+
+.custom-file-label:hover::before {
+    background-color: #e06a1a;
+    transform: scale(1.05);
+}
+
+.custom-file-input:focus::before {
+    outline: 2px solid #333;
+    outline: -webkit-focus-ring-color auto 5px;
+}
+
+.custom-file-label::after {
+    content: "No file chosen";
+    margin-left: 10px;
+    font-weight: normal;
+    color: #666;
+}
+
+.custom-file-input:valid + .custom-file-label::after {
+    content: attr(data-file-name); /* Display the chosen file name */
+}
+
+#date-container {
+    position: relative;
+    width: 55%;
+    margin: 0 auto;
+    cursor: pointer; /* Add this line to change the pointer on hover */
+}
+
+input[type="date"] {
+    width: 55%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    text-align: left;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #FFF;
+    color: #333;
+    cursor: pointer; /* Add this line to change the pointer on hover */
+}
+
+#date-container input[type="date"] {
+    width: 100%; /* already set inline */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'open sans', sans-serif;
+    background-color: white;
+    color: #333;
+}
+
+#serialNum{
+    width: 33%;
+}

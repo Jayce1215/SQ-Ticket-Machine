@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'open sans', sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -129,6 +129,5 @@ button:focus {
     font-size: 1.2em;
     padding: 5px 0;
     width: 100%;
-    transition: 2ms;
 }
 

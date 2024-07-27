@@ -1,0 +1,177 @@
+body {
+    font-family: 'open sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+.container {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+
+}
+
+h2, h3 {
+    color: black;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 55px;
+    color: #F47C22;
+}
+
+h2 {
+    font-size: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    text-align: center;
+    margin-top: 55px;
+}
+
+h3 {
+    margin-top: 15px;
+    color: #666;
+    font-size: 18px;
+}
+
+label {
+    display: block;
+    margin-top: 30px;
+    font-size: 16px;
+    color: #444;
+    margin-left: 30%;
+}
+
+input, textarea::placeholder {
+    font-family: 'open sans', sans-serif;
+    color: #888; /* Example color */
+    font-size: 17px; /* Example font size */
+}
+
+.warranty{
+    color: black;
+}
+
+
+input[type="text"], textarea, input[type="file"] {
+    width: 40%;
+    padding: 10px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    align-items: center;
+    margin-left: 30%;
+}
+
+textarea {
+    width: 45%;
+    font-family: 'open sans', sans-serif;
+    font-size: 1rem;
+    height: 55px;
+}
+
+
+input[type="file"] {
+    background: #fafafa;
+    cursor: pointer;
+    
+}
+
+textarea {
+    height: 120px;
+    resize: none;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #F47C22;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(1.1);
+    font-weight: bold;
+
+}
+
+
+.manual {
+    font-size: 15px;
+    color: #666;
+    line-height: 2;
+}
+
+strong {
+    font-weight: bold;
+    color: #333;
+}
+
+p {
+    margin-top: 5px;
+    font-size: 15px;
+    color: #666;
+    line-height: 2;
+}
+
+
+input::placeholder {
+    font-family: 'open sans', sans-serif;
+    color: #888; /* Example color */
+    font-size: 17px; /* Example font size */
+}
+
+
+.step-form .button-container {
+    width: 100%;
+    text-align: center;
+    margin-top: 45px;
+}
+
+
+.step-form .button {
+    width: 20%;
+    padding: 10px 0;
+    background-color: #F47C22;
+    color: #FFF;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin: 10px;
+    font-family: 'open sans', sans-serif;
+    font-size: 1rem;
+
+}
+
+#checkWarranty{
+    font-size: 0.9rem;
+    font-family: 'open sans', sans-serif;
+}
+
+.step-form .button.back-button {
+    background-color: #838B97;
+    font-family: 'open sans', sans-serif;
+}
+
+.step-form .button:hover {
+    transform: scale(1.1);
+    font-weight: bold;
+
+}
+.step-form button:focus {
+    outline: none;
+}
+
