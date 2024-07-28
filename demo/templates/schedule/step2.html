@@ -92,7 +92,7 @@
 <body>
     <div class="container">
         <h1>Step 2: Product Information</h1>
-        <form class="step-form" action="{{ url_for('step3') }}" method="post" enctype="multipart/form-data">
+        <form class="step-form" action="{{ url_for('schedule_step3') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="name" value="{{ name }}">
             <input type="hidden" name="contactNum" value="{{ contactNum }}">
             <input type="hidden" name="address" value="{{ address }}">
@@ -140,7 +140,6 @@
             <textarea id="issue" name="issue" placeholder="e.g The icemaker is broken.." ></textarea>
 
             <label>Upload images of the issue:</label>
-            <!-- Repeat this block for each file input -->
             <label for="img_issue_1">Upload Image 1</label>
             <input type="file" id="img_issue_1" name="img_issue_1" accept="image/*">
             <img id="previewIssue_1" alt="Image Preview 1" style="display: none; width: 200px; height: 200px; margin-left: 39%; margin-top: 20px;">

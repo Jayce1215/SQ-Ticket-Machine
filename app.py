@@ -15,7 +15,14 @@ app = Flask(__name__, template_folder='demo/templates', static_folder='demo/stat
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+
+
+logging.debug("Debug message")
+logging.info("Info message")
+logging.warning("Warning message")
+logging.error("Error message")
+logging.critical("Critical message")
 
 
 @app.route('/')
@@ -23,11 +30,11 @@ def landing():
     return render_template('landing.html')
 
 @app.route('/schedule/step1')
-def step1():
+def schedule_step1():
     return render_template('schedule/step1.html')
 
 @app.route('/schedule/step2', methods=['POST'])
-def step2():
+def schedule_step2():
     name = request.form['name']
     contactNum = request.form['contactNum']
     address = request.form['address']
@@ -40,7 +47,7 @@ def step2():
 
 
 @app.route('/schedule/step3', methods=['POST'])
-def step3():
+def schedule_step3():
     name = request.form['name']
     contactNum = request.form['contactNum']
     address = request.form['address']
@@ -72,13 +79,15 @@ def step3():
         img_bos = convert_to_base64(img_bos)
         logging.info(f'Encoded BOS Image: {img_bos[:30]}...')  # Log first 30 chars for brevity
 
+
     return render_template('schedule/step3.html', name=name, issue=issue, contactNum=contactNum,
                            address=address, modelNum=modelNum, serialNum=serialNum, img_bos=img_bos,
                            img_issues=img_issues, warrantyStatus=warrantyStatus, city=city, state=state,
                            zipcode=zipcode, email=email)
 
-@app.route('/confirm', methods=['POST'])
-def confirm():
+
+@app.route('/schedule/confirm', methods=['POST'])
+def schedule_confirm():
     try:
         unique_id = str(uuid.uuid4())
         base_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
@@ -88,6 +97,18 @@ def confirm():
         bos_path = os.path.join(base_path, 'BOS')
         os.makedirs(issues_path, exist_ok=True)
         os.makedirs(bos_path, exist_ok=True)
+        
+        img_bos = request.files.get('img_bos')
+        logging.info(f"img_bos value: {img_bos}")
+        bos_file_path = None
+        if img_bos and img_bos.strip():  # Check if img_bos has a value before proceeding
+            filename = 'bos.jpg'
+            bos_file_path = os.path.join(bos_path, filename)
+            with open(bos_file_path, "wb") as fh:
+                fh.write(base64.b64decode(img_bos.split(",", 1)[1]))
+            img_bos = url_for('uploaded_file', filename=f'{unique_id}/BOS/{filename}')
+            logging.info(f'Saved BOS Image {filename} at {bos_file_path}')
+
 
         img_issues = []
         for i in range(1, 5):
@@ -100,15 +121,7 @@ def confirm():
                 img_issues.append(url_for('uploaded_file', filename=f'{unique_id}/Issues/{filename}'))
                 logging.info(f'Saved Issue Image {filename} at {file_path}')
 
-        img_bos = request.form.get('img_bos')
-        bos_file_path = None
-        if img_bos:
-            filename = 'bos.jpg'
-            bos_file_path = os.path.join(bos_path, filename)
-            with open(bos_file_path, "wb") as fh:
-                fh.write(base64.b64decode(img_bos.split(",")[1]))
-            img_bos = url_for('uploaded_file', filename=f'{unique_id}/BOS/{filename}')
-            logging.info(f'Saved BOS Image {filename} at {bos_file_path}')
+
 
         date = request.form['date']
         name = request.form['name']
@@ -137,6 +150,11 @@ def confirm():
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/reschedule/step1')
+def reschedule_step1():
+    return render_template('reschedule/step1.html')
 
 if __name__ == '__main__':
     app.run(port = 8000,debug=True)

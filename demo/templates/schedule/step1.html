@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>Step 1: Customer Information</h1>
-        <form class="step-form" action="{{ url_for('step2') }}" method="post" enctype="multipart/form-data">
+        <form class="step-form" action="{{ url_for('schedule_step2') }}" method="post" enctype="multipart/form-data">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" placeholder="Name" >
 
@@ -24,7 +24,6 @@
 
             <label for="city">City:</label>
             <input type="text" id="city" name="city" placeholder="City" >
-
             
             <label for="state">State:</label>
             <input type="text" id="state" name="state" placeholder="State" >

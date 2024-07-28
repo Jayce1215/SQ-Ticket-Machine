@@ -19,7 +19,7 @@
 <body>
     <div class="container">
         <h1>Step 3: Choose a Date</h1>
-        <form class="step-form" action="{{ url_for('confirm') }}" method="post" enctype="multipart/form-data">
+        <form class="step-form" action="{{ url_for('schedule_confirm') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="name" value="{{ name }}">
             <input type="hidden" name="contactNum" value="{{ contactNum }}">
             <input type="hidden" name="address" value="{{ address }}">

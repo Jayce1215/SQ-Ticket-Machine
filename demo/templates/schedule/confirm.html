@@ -24,18 +24,14 @@
             <h2>Bill of Sale Image</h2>
             {% if img_bos %}
                 <img src="{{ img_bos }}" alt="BOS Image" style="width: 200px; height: 200px;">
-            {% else %}
-                <p>No Bill of Sale image uploaded.</p>
             {% endif %}
 
             <h2>Issue Images</h2>
-            {% if img_issues %}
-                {% for img in img_issues %}
+            {% for img in img_issues %}
+                {% if img %}
                     <img src="{{ img }}" alt="Issue Image" style="width: 200px; height: 200px; margin: 10px;">
-                {% endfor %}
-            {% else %}
-                <p>No issue images uploaded.</p>
-            {% endif %}
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 </body>
