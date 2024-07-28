@@ -18,13 +18,6 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
 
-logging.debug("Debug message")
-logging.info("Info message")
-logging.warning("Warning message")
-logging.error("Error message")
-logging.critical("Critical message")
-
-
 @app.route('/')
 def landing():
     return render_template('landing.html')
@@ -89,6 +82,7 @@ def schedule_step3():
 @app.route('/schedule/confirm', methods=['POST'])
 def schedule_confirm():
     try:
+        # Should be replaced with a real ticket number
         unique_id = str(uuid.uuid4())
         base_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
         os.makedirs(base_path, exist_ok=True)
@@ -99,7 +93,6 @@ def schedule_confirm():
         os.makedirs(bos_path, exist_ok=True)
         
         img_bos = request.files.get('img_bos')
-        logging.info(f"img_bos value: {img_bos}")
         bos_file_path = None
         if img_bos and img_bos.strip():  # Check if img_bos has a value before proceeding
             filename = 'bos.jpg'
@@ -120,8 +113,6 @@ def schedule_confirm():
                     fh.write(base64.b64decode(base64_str.split(",")[1]))
                 img_issues.append(url_for('uploaded_file', filename=f'{unique_id}/Issues/{filename}'))
                 logging.info(f'Saved Issue Image {filename} at {file_path}')
-
-
 
         date = request.form['date']
         name = request.form['name']
@@ -155,6 +146,22 @@ def uploaded_file(filename):
 @app.route('/reschedule/step1')
 def reschedule_step1():
     return render_template('reschedule/step1.html')
+
+@app.route('/reschedule/step2', methods=['POST'])
+def reschedule_step2():
+    return render_template('reschedule/step2.html')
+
+@app.route('/reschedule/confirm', methods=['POST'])
+def reschedule_confirm():
+    return render_template('reschedule/confirm.html')
+
+@app.route('/cancel/step1')
+def cancel_step1():
+    return render_template('cancel/step1.html')
+
+@app.route('/cancel/step1',methods=['POST'])
+def cancel_confirm():
+    return render_template('cancel/confirm.html')
 
 if __name__ == '__main__':
     app.run(port = 8000,debug=True)

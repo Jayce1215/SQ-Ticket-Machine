@@ -9,6 +9,7 @@
     <div class="container">
         <h1>Ticket Confirmation</h1>
         <div class="detail-group">
+            <h2>Your Ticket Number : {{unique_id}}</h2>
             <p>Customer Name: {{ name }}</p>
             <p>Contact Number: {{ contactNum }}</p>
             <p>Location: {{ address }}</p>
@@ -21,12 +22,12 @@
             <p>Warranty Status: {{ warrantyStatus }}</p>
         </div>
         <div class="image-group">
-            <h2>Bill of Sale Image</h2>
+            <h3>Bill of Sale Image</h3>
             {% if img_bos %}
                 <img src="{{ img_bos }}" alt="BOS Image" style="width: 200px; height: 200px;">
             {% endif %}
 
-            <h2>Issue Images</h2>
+            <h3>Issue Images</h3>
             {% for img in img_issues %}
                 {% if img %}
                     <img src="{{ img }}" alt="Issue Image" style="width: 200px; height: 200px; margin: 10px;">

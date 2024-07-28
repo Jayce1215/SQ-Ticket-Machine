@@ -7,6 +7,19 @@
    
 </head>
 <body>
-    <h1>hi</h1>
+    <div class="container">
+        <h1>Step 1: View Your Schedule</h1>
+        <p style="margin-left: 28%;">
+            Type your ticket number or serial number to view your schedule.
+        </p>
+    <form class="step-form" action="{{ url_for('reschedule_step2') }}" method="post" enctype="multipart/form-data">
+        <label for="ticketNum">Ticket Number:</label>
+        <input type="text" id="ticketNum" name="ticketNum" placeholder="Ticket Number" >
+        <button type="submit" class="button">View Schedule</button>
+
+        <label for="serialNum">Serial Number:</label>
+        <input type="text" id="serialNum" name="serialNum" placeholder="Serial Number">
+        <button type="submit" class="button">View Schedule</button>
+    </div>
 </body>
 </html>
