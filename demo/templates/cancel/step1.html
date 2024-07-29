@@ -8,23 +8,18 @@
 </head>
 <body>
     <div class="container">
-        <h1>Step 2: Change the Schedule</h1>
-        <div style="margin-left: 28%;">
-            <h3>Your Ticket Number : {{unique_id}}</h3>
-            <p>Customer Name: {{ name }}</p>
-            <p>Contact Number: {{ contactNum }}</p>
-            <p>Location: {{ address }}</p>
-            <p>Date: {{ date }}</p>
-            <p>Model Number: {{ modelNum }}</p>
-            <p>Product Type: {{ product_type }}</p>
-            <p>Product Category: {{ product_category }}</p>
-            <p>Serial Number: {{ serialNum }}</p>
-            <p>Issue: {{ issue }}</p>
-            <p>Warranty Status: {{ warrantyStatus }}</p>
-        </div>
+        <h1>Step 1: Verify Your Ticekt</h1>
+        <p style="margin-left: 28%;">
+            Type your ticket number or serial number to cancel your ticket.
+        </p>
+    <form class="step-form" action="{{ url_for('cancel_step2') }}" method="post" enctype="multipart/form-data">
+        <label for="ticketNum">Ticket Number:</label>
+        <input type="text" id="ticketNum" name="ticketNum" placeholder="Ticket Number" >
+        <button type="submit" class="button">View Schedule</button>
 
-        <form class="step-form" action="{{ url_for('cancel_confirm') }}" method="post" enctype="multipart/form-data">
-        <button type="submit" class="button" >Cancel</button>
-        </form>
+        <label for="serialNum">Serial Number:</label>
+        <input type="text" id="serialNum" name="serialNum" placeholder="Serial Number">
+        <button type="submit" class="button">View Schedule</button>
+    </div>
 </body>
 </html>

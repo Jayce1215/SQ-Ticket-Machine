@@ -15,7 +15,7 @@ app = Flask(__name__, template_folder='demo/templates', static_folder='demo/stat
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+# logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 @app.route('/')
@@ -65,12 +65,12 @@ def schedule_step3():
         if file and file.filename:
             base64_image = convert_to_base64(file)
             img_issues.append(base64_image)
-            logging.info(f'Encoded Issue Image {i}: {base64_image[:30]}...')  # Log first 30 chars for brevity
+            # logging.info(f'Encoded Issue Image {i}: {base64_image[:30]}...')  # Log first 30 chars for brevity
 
     img_bos = request.files.get('img_bos')
     if img_bos and img_bos.filename:
         img_bos = convert_to_base64(img_bos)
-        logging.info(f'Encoded BOS Image: {img_bos[:30]}...')  # Log first 30 chars for brevity
+        # logging.info(f'Encoded BOS Image: {img_bos[:30]}...')  # Log first 30 chars for brevity
 
 
     return render_template('schedule/step3.html', name=name, issue=issue, contactNum=contactNum,
@@ -100,7 +100,7 @@ def schedule_confirm():
             with open(bos_file_path, "wb") as fh:
                 fh.write(base64.b64decode(img_bos.split(",", 1)[1]))
             img_bos = url_for('uploaded_file', filename=f'{unique_id}/BOS/{filename}')
-            logging.info(f'Saved BOS Image {filename} at {bos_file_path}')
+            # logging.info(f'Saved BOS Image {filename} at {bos_file_path}')
 
 
         img_issues = []
@@ -112,7 +112,7 @@ def schedule_confirm():
                 with open(file_path, "wb") as fh:
                     fh.write(base64.b64decode(base64_str.split(",")[1]))
                 img_issues.append(url_for('uploaded_file', filename=f'{unique_id}/Issues/{filename}'))
-                logging.info(f'Saved Issue Image {filename} at {file_path}')
+                # logging.info(f'Saved Issue Image {filename} at {file_path}')
 
         date = request.form['date']
         name = request.form['name']
@@ -159,7 +159,11 @@ def reschedule_confirm():
 def cancel_step1():
     return render_template('cancel/step1.html')
 
-@app.route('/cancel/step1',methods=['POST'])
+@app.route('/cancel/step2',methods=['POST'])
+def cancel_step2():
+    return render_template('cancel/step2.html')
+
+@app.route('/cancel/confirm',methods=['POST'])
 def cancel_confirm():
     return render_template('cancel/confirm.html')
 
