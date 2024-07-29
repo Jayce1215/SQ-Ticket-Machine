@@ -32,11 +32,11 @@
             <input type="hidden" name="zipcode" value="{{ zipcode }}">
             <input type="hidden" name="email" value="{{ email }}">
             <input type="hidden" name="issue" value="{{ issue }}">
-            {% for i in range(1, 5) %}
-                <input type="hidden" name="img_issue_{{ i }}" value="{{ img_issues[i-1] if img_issues|length >= i else '' }}">
+            <input type="hidden" name="unique_id" value="{{ unique_id }}">
+            <input type="hidden" name="img_bos" value="{{ img_bos }}">
+            {% for img_issue in img_issues %}
+                <input type="hidden" name="img_issues" value="{{ img_issue }}">
             {% endfor %}
-            <input type="hidden" name="img_bos" value="{{img_bos}}">
-
             
             
             <label for="date">Select date:</label>

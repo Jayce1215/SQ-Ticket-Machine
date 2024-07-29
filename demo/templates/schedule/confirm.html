@@ -21,18 +21,20 @@
             <p>Issue: {{ issue }}</p>
             <p>Warranty Status: {{ warrantyStatus }}</p>
         </div>
+
         <div class="image-group">
             <h3>Bill of Sale Image</h3>
             {% if img_bos %}
-                <img src="{{ img_bos }}" alt="BOS Image" style="width: 200px; height: 200px;">
+                <img src="{{ url_for('uploads', unique_id=unique_id, filename=img_bos.split('/')[-1]) }}" alt="BOS Image" width="200">
             {% endif %}
 
             <h3>Issue Images</h3>
-            {% for img in img_issues %}
-                {% if img %}
-                    <img src="{{ img }}" alt="Issue Image" style="width: 200px; height: 200px; margin: 10px;">
+            {% for issue_image in img_issues %}
+            {% if img_issues %}
+            <img src="{{ url_for('uploads', unique_id=unique_id, filename=issue_image.split('/')[-1]) }}" alt="Issue Image" width="200">
                 {% endif %}
             {% endfor %}
+            
         </div>
     </div>
 </body>

@@ -1,21 +1,53 @@
 import os
 import openai
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from demo.product import product_data
 import uuid
 import base64
+import json
 import logging
+from flask_sqlalchemy import SQLAlchemy
+
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__, template_folder='demo/templates', static_folder='demo/static')
-app.config['UPLOAD_FOLDER'] = 'uploads/'
+app.config['UPLOAD_FOLDER'] = 'uploads'  # Folder where images will be saved
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
-# logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+
+
+#configure the database
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# Define a model for storing user information
+# Unique_id should be replaced with a ticket number
+class UserInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    unique_id = db.Column(db.String(36), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    contactNum = db.Column(db.String(20), nullable=False)
+    address = db.Column(db.String(200), nullable=False)
+    modelNum = db.Column(db.String(50), nullable=False)
+    product_type = db.Column(db.String(50), nullable=False)
+    product_category = db.Column(db.String(50), nullable=False)
+    serialNum = db.Column(db.String(50), nullable=False)
+    issue = db.Column(db.Text, nullable=False)
+    city = db.Column(db.String(50), nullable=False)
+    state = db.Column(db.String(50), nullable=False)
+    zipcode = db.Column(db.String(10), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    warrantyStatus = db.Column(db.String(20), nullable=False)
+    img_bos = db.Column(db.String(200), nullable=True)
+    img_issues = db.Column(db.Text, nullable=True)
 
 
 @app.route('/')
@@ -52,68 +84,46 @@ def schedule_step3():
     email = request.form['email']
     issue = request.form['issue']
     warrantyStatus = request.form['warrantyStatus']
+    unique_id = str(uuid.uuid4())
 
-    def convert_to_base64(file):
-        file_content = file.read()
-        mime_type = file.mimetype
-        base64_image = base64.b64encode(file_content).decode('utf-8')
-        return f"data:{mime_type};base64,{base64_image}"
+    # Define paths
+    base_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
+    issues_path = os.path.join(base_path, 'Issues')
+    bos_path = os.path.join(base_path, 'BOS')
 
-    img_issues = []
-    for i in range(1, 5):
-        file = request.files.get(f'img_issue_{i}')
-        if file and file.filename:
-            base64_image = convert_to_base64(file)
-            img_issues.append(base64_image)
-            # logging.info(f'Encoded Issue Image {i}: {base64_image[:30]}...')  # Log first 30 chars for brevity
+    # Ensure directories exist
+    os.makedirs(issues_path, exist_ok=True)
+    os.makedirs(bos_path, exist_ok=True)
 
+    # Handle BOS image
     img_bos = request.files.get('img_bos')
+    img_bos_path = None
     if img_bos and img_bos.filename:
-        img_bos = convert_to_base64(img_bos)
-        # logging.info(f'Encoded BOS Image: {img_bos[:30]}...')  # Log first 30 chars for brevity
+        bos_filename = secure_filename(img_bos.filename)
+        img_bos_path = os.path.join(bos_path, bos_filename)
+        img_bos.save(img_bos_path)
 
+    # Handle issue images
+    img_issues_paths = []
+    for i in range(1, 5):
+        img_issue = request.files.get(f'img_issue_{i}')
+        if img_issue and img_issue.filename:
+            issue_filename = secure_filename(img_issue.filename)
+            issue_file_path = os.path.join(issues_path, issue_filename)
+            img_issue.save(issue_file_path)
+            img_issues_paths.append(issue_file_path)
+    
 
     return render_template('schedule/step3.html', name=name, issue=issue, contactNum=contactNum,
-                           address=address, modelNum=modelNum, serialNum=serialNum, img_bos=img_bos,
-                           img_issues=img_issues, warrantyStatus=warrantyStatus, city=city, state=state,
-                           zipcode=zipcode, email=email)
+                           address=address, modelNum=modelNum, serialNum=serialNum, img_bos=img_bos_path,
+                           img_issues=img_issues_paths, warrantyStatus=warrantyStatus, city=city, state=state,
+                           zipcode=zipcode, email=email,unique_id=unique_id)
 
 
-@app.route('/schedule/confirm', methods=['POST'])
+@app.route('/schedule/confirm', methods=['GET','POST'])
 def schedule_confirm():
     try:
-        # Should be replaced with a real ticket number
-        unique_id = str(uuid.uuid4())
-        base_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
-        os.makedirs(base_path, exist_ok=True)
-
-        issues_path = os.path.join(base_path, 'Issues')
-        bos_path = os.path.join(base_path, 'BOS')
-        os.makedirs(issues_path, exist_ok=True)
-        os.makedirs(bos_path, exist_ok=True)
-        
-        img_bos = request.files.get('img_bos')
-        bos_file_path = None
-        if img_bos and img_bos.strip():  # Check if img_bos has a value before proceeding
-            filename = 'bos.jpg'
-            bos_file_path = os.path.join(bos_path, filename)
-            with open(bos_file_path, "wb") as fh:
-                fh.write(base64.b64decode(img_bos.split(",", 1)[1]))
-            img_bos = url_for('uploaded_file', filename=f'{unique_id}/BOS/{filename}')
-            # logging.info(f'Saved BOS Image {filename} at {bos_file_path}')
-
-
-        img_issues = []
-        for i in range(1, 5):
-            base64_str = request.form.get(f'img_issue_{i}')
-            if base64_str:
-                filename = f'issue_{i}.jpg'
-                file_path = os.path.join(issues_path, filename)
-                with open(file_path, "wb") as fh:
-                    fh.write(base64.b64decode(base64_str.split(",")[1]))
-                img_issues.append(url_for('uploaded_file', filename=f'{unique_id}/Issues/{filename}'))
-                # logging.info(f'Saved Issue Image {filename} at {file_path}')
-
+        # Collect form data
         date = request.form['date']
         name = request.form['name']
         contactNum = request.form['contactNum']
@@ -128,20 +138,49 @@ def schedule_confirm():
         zipcode = request.form['zipcode']
         email = request.form['email']
         warrantyStatus = request.form['warrantyStatus']
+        img_bos_path = request.form['img_bos']
+        img_issues_paths = request.form.getlist('img_issues')
+        unique_id = request.form['unique_id']
+
+
+        # Save the data to the database
+        user_info = UserInfo(
+            unique_id=unique_id,
+            name=name,
+            contactNum=contactNum,
+            address=address,
+            modelNum=modelNum,
+            product_type=product_type,
+            product_category=product_category,
+            serialNum=serialNum,
+            issue=issue,
+            city=city,
+            state=state,
+            zipcode=zipcode,
+            email=email,
+            warrantyStatus=warrantyStatus,
+            img_bos=img_bos_path,
+            img_issues=",".join(img_issues_paths)
+        )
+
+        db.session.add(user_info)
+        db.session.commit()
 
         return render_template('schedule/confirm.html', name=name, contactNum=contactNum, address=address, modelNum=modelNum, 
-                               serialNum=serialNum, img_bos=img_bos, img_issues=img_issues, warrantyStatus=warrantyStatus, 
+                               serialNum=serialNum, img_bos=img_bos_path, img_issues=img_issues_paths, warrantyStatus=warrantyStatus, 
                                city=city, state=state, zipcode=zipcode, email=email, issue=issue, date=date, 
                                product_type=product_type, product_category=product_category, unique_id=unique_id)
     except Exception as e:
         logging.error(f'Error during confirmation: {e}')
+        logging.debug(f"Received img_bos_path: {img_bos_path}")
+        logging.debug(f"Received img_issues_paths: {img_issues_paths}")
+        logging.debug(f"Received unique_id: {unique_id}")
+
         return "An error occurred during the file upload process."
 
-
-@app.route('/uploads/<path:filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
+@app.route('/uploads/<unique_id>/<filename>')
+def uploads(unique_id,filename):
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], unique_id), filename)
 
 @app.route('/reschedule/step1')
 def reschedule_step1():
@@ -168,5 +207,12 @@ def cancel_confirm():
     return render_template('cancel/confirm.html')
 
 if __name__ == '__main__':
-    app.run(port = 8000,debug=True)
+    with app.app_context():
+        db.create_all()  # Ensure that all database tables are created
+    app.run(port=8000, debug=True)
 
+
+
+ # Schedule / confirm -> Find the date in Slot and Update to minus 1. if Sloct == 0, then show error message + update time stamp
+        # Reschedule / Step 2 -> Find the date in ticket number and update the date in Slot to minus 1, the old date in slot to plus 1. if Sloct == 0, then show error message + update time stamp 
+        # Cancel / Step 2 -> Find the date in ticket number and update the date in Slot to plus 1. + update time stamp
