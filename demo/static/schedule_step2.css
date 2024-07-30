@@ -51,7 +51,11 @@ label {
     margin-left: 30%;
 }
 
-input, textarea::placeholder {
+input{
+    font-family: 'open sans', sans-serif;
+}
+
+textarea::placeholder {
     font-family: 'open sans', sans-serif;
     color: #888; /* Example color */
     font-size: 17px; /* Example font size */
@@ -71,6 +75,10 @@ input[type="text"], textarea, input[type="file"] {
     border-radius: 4px;
     align-items: center;
     margin-left: 30%;
+    font-family: 'open sans', sans-serif;
+    font-size: 17px; /* Example font size */
+
+
 }
 
 textarea {

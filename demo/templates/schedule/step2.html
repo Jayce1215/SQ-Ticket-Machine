@@ -26,6 +26,30 @@
             margin-left: 45%;
             font-family: 'open sans', sans-serif;
         }
+                /* Style the dropdown */
+        .dropdown-content {
+            position: absolute;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            z-index: 1;
+            width: 24%;
+            margin-left: 18%;
+        }
+        .dropdown-content div {
+            padding: 8px;
+            cursor: pointer;
+            font-family: 'open sans', sans-serif;
+
+        }
+        .dropdown-content div:hover {
+            background-color: #f1f1f1;
+        }
+
+        .modelnum{
+            color: black;
+        }
     </style>
     <script>
         function checkWarranty() {
@@ -85,8 +109,52 @@
         statusDetailElement.style.display = 'inline';
         warrantyStatusElement.style.display = 'block';
     }
+    const productData = JSON.parse('{{ product_data|tojson|safe }}');
 
+      
+    function filterModels() {
+            const input = document.getElementById("modelNum");
+            const filter = input.value.toUpperCase();
+            const dropdown = document.getElementById("dropdown-content");
+            dropdown.innerHTML = "";  // Clear previous results
 
+            if(filter.length === 0) {
+                dropdown.style.display = "none";
+                return;
+            }
+
+            dropdown.style.display = "block";
+
+            let hasResults = false;
+
+            for (const model in productData) {
+                if (model.toUpperCase().indexOf(filter) > -1) {
+                    const div = document.createElement("div");
+                    div.textContent = model;
+                    div.onclick = function() {
+                        input.value = model;
+                        updateProductDetails(model);
+                        dropdown.innerHTML = "";  // Clear the dropdown after selection
+                        dropdown.style.display = "none";
+                    };
+                    dropdown.appendChild(div);
+                    hasResults = true;
+                }
+            }
+            if(!hasResults) {
+                dropdown.display = "none";
+            }
+        }
+
+        function updateProductDetails(modelNum) {
+            const productTypeField = document.getElementById("productType");
+            const productCategoryField = document.getElementById("productCategory");
+            
+            if (productTypeField && productCategoryField && modelNum in productData) {
+                    productTypeField.value = productData[modelNum][0];
+                    productCategoryField.value = productData[modelNum][1];
+                }
+            }
     </script>
 </head>
 <body>
@@ -103,7 +171,8 @@
             
             
             <label for="modelNum">Model Number:</label>
-            <input type="text" id="modelNum" name="modelNum" placeholder="e.g WA54R7600AC/US" >
+            <input type="text" id="modelNum" name="modelNum" placeholder="e.g WA54R7600AC/US" onkeyup="filterModels()">
+            <div id="dropdown-content" class="dropdown-content" style="display: none;"></div>
 
             <div class="warranty">
                 <h2>Check Warranty Status</h2>

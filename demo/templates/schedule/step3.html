@@ -14,11 +14,18 @@
                 dateInput.click();
             });
         });
+
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+
+
 </head>
 <body>
     <div class="container">
-        <h1>Step 3: Choose a Date</h1>
+        <h1>Step 3: Select Visiting Date</h1>
         <form class="step-form" action="{{ url_for('schedule_confirm') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="name" value="{{ name }}">
             <input type="hidden" name="contactNum" value="{{ contactNum }}">
@@ -34,23 +41,33 @@
             <input type="hidden" name="issue" value="{{ issue }}">
             <input type="hidden" name="unique_id" value="{{ unique_id }}">
             <input type="hidden" name="img_bos" value="{{ img_bos }}">
-            {% for img_issue in img_issues %}
-                <input type="hidden" name="img_issues" value="{{ img_issue }}">
+            <input type="hidden" name="img_bos_path" value="{{ img_bos_path }}">
+            {% for path in img_issues_paths %}
+                <input type="hidden" name="img_issues_paths" value="{{ path }}">
             {% endfor %}
             
-            
-            <label for="date">Select date:</label>
             <div id="date-container">
-                <input type="date" id="date" name="date" required style="width: 100%;" onclick="this.showPicker();">
+            <input type="text" id="datepicker" name="datepicker" placeholder="Select a date" required style="width: 45%;">
             </div>
-            
-            
+
             <div class="button-container">
                 <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
-                <button type="submit" class="button">Confirm</button>
+                <button type="submit" class="button">Next</button>
             </div>
         </form>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const availableDates = JSON.parse('{{ available_dates|tojson|safe }}');
+        
+        // Initialize Flatpickr
+        flatpickr("#datepicker", {
+            dateFormat: "Y-m-d",
+            enable: availableDates,  // Only enable available dates
+            disableMobile: true,  // Ensures desktop picker on mobile devices too
+        });
+    });
+    </script>
 </body>
 </html>
 

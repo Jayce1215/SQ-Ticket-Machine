@@ -1,5 +1,4 @@
 import os
-import openai
 from flask import Flask, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -9,6 +8,12 @@ import base64
 import json
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+import pandas as pd
+from datetime import datetime
+from sqlalchemy import func
+
 
 
 # Load environment variables from .env file
@@ -28,9 +33,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Initialize Flask-Admin
+admin = Admin(app, name='Admin', template_mode='bootstrap3')
+
+
 # Define a model for storing user information
 # Unique_id should be replaced with a ticket number
 class UserInfo(db.Model):
+    __tablename__ = 'user_info'
+
     id = db.Column(db.Integer, primary_key=True)
     unique_id = db.Column(db.String(36), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
@@ -48,7 +59,86 @@ class UserInfo(db.Model):
     warrantyStatus = db.Column(db.String(20), nullable=False)
     img_bos = db.Column(db.String(200), nullable=True)
     img_issues = db.Column(db.Text, nullable=True)
+    appointment_date = db.Column(db.DateTime, nullable = False)   # Ensure this line exists
 
+    def __repr__(self):
+        return f'<UserInfo {self.name}>'
+
+# Define a model for slot
+class ChatSlot(db.Model):
+    __tablename__ = 'chat_slots'
+
+    slot_id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
+    nickname = db.Column(db.String(100), nullable=False)
+    created_on = db.Column(db.DateTime, nullable=False)
+    created_by = db.Column(db.Integer, nullable=False)
+    updated_on = db.Column(db.DateTime, nullable=True)  # Allow NULL
+    updated_by = db.Column(db.String(100), nullable=True)  # Allow NULL
+    warehouse_id = db.Column(db.String(50), nullable=False)
+    zone = db.Column(db.String(10), nullable=False)
+    from_dtime = db.Column(db.DateTime, nullable=False)
+    to_dtime = db.Column(db.DateTime, nullable=False)
+    slot = db.Column(db.Integer, nullable=False)
+    product_category = db.Column(db.String(50), nullable=True)
+
+    def __init__(self, nickname, slot_id, created_on, created_by, updated_on, updated_by, warehouse_id, zone, from_dtime, to_dtime, slot, product_category):
+        self.nickname = nickname
+        self.slot_id = slot_id
+        self.created_on = created_on
+        self.created_by = created_by
+        self.updated_on = updated_on
+        self.updated_by = updated_by
+        self.warehouse_id = warehouse_id
+        self.zone = zone
+        self.from_dtime = from_dtime
+        self.to_dtime = to_dtime
+        self.slot = slot
+        self.product_category = product_category
+
+
+    def __repr__(self):
+        return f'<ChatSlot {self.slot_id}>'
+    
+
+# Add the slots to the database
+csv_file_path='chatslot_LA.csv'
+def add_chat_slots_from_csv(csv_file_path):
+    df = pd.read_csv(csv_file_path)
+    
+    with app.app_context():  # Ensure the app context is active
+        for index, row in df.iterrows():  # Corrected: iterrows returns index and row
+            existing_slot = ChatSlot.query.filter_by(slot_id=row['SLOTID']).first()
+            if existing_slot:
+                print(f"Slot ID {row['SLOTID']} already exists in the database. Skipping...")
+                continue
+            # Convert dates to strings if they're not already
+            created_on_str = str(row['CREATEDON']) if not pd.isna(row['CREATEDON']) else None
+            updated_on_str = str(row['UPDATEDON']) if not pd.isna(row['UPDATEDON']) else None
+            from_dtime_str = str(row['FROMDTIME']) if not pd.isna(row['FROMDTIME']) else None
+            to_dtime_str = str(row['TODTIME']) if not pd.isna(row['TODTIME']) else None
+
+            # Parse the dates only if they're not None
+            created_on = datetime.strptime(created_on_str, '%Y-%m-%d %H:%M:%S.%f') if created_on_str else None
+            updated_on = datetime.strptime(updated_on_str, '%Y-%m-%d %H:%M:%S.%f') if updated_on_str else None
+            from_dtime = datetime.strptime(from_dtime_str, '%Y-%m-%d %H:%M:%S.%f') if from_dtime_str else None
+            to_dtime = datetime.strptime(to_dtime_str, '%Y-%m-%d %H:%M:%S.%f') if to_dtime_str else None
+
+            chat_slot = ChatSlot(
+                nickname=row['NICKNAME'],
+                slot_id=row['SLOTID'],
+                created_on=created_on,
+                created_by=row['CREATEDBY'],
+                updated_on=updated_on,
+                updated_by=row['UPDATEDBY'],
+                warehouse_id=row['WAREHOUSEID'],
+                zone=row['ZONE'],
+                from_dtime=from_dtime,
+                to_dtime=to_dtime,
+                slot=row['SLOT'],
+                product_category=row['PRODUCTCATEGORY']
+            )
+            db.session.add(chat_slot)
+            db.session.commit()
 
 @app.route('/')
 def landing():
@@ -68,7 +158,7 @@ def schedule_step2():
     zipcode = request.form['zipcode']
     email = request.form['email']
 
-    return render_template('schedule/step2.html', name=name, contactNum=contactNum, address=address,  city=city, state=state, zipcode=zipcode, email=email)
+    return render_template('schedule/step2.html', name=name, contactNum=contactNum, address=address,  city=city, state=state, zipcode=zipcode, email=email, product_data=product_data)
 
 
 @app.route('/schedule/step3', methods=['POST'])
@@ -84,7 +174,27 @@ def schedule_step3():
     email = request.form['email']
     issue = request.form['issue']
     warrantyStatus = request.form['warrantyStatus']
-    unique_id = str(uuid.uuid4())
+
+        # Check if a record with the same key fields already exists
+    existing_record = UserInfo.query.filter_by(
+            name=name,
+            contactNum=contactNum,
+            serialNum=serialNum,
+        ).first()
+    print(name, contactNum, serialNum)
+    print(existing_record)
+
+    if existing_record:
+            unique_id = existing_record.unique_id
+    else:
+            unique_id = str(uuid.uuid4())
+
+    # Query the available dates where slot > 0
+    available_dates = ChatSlot.query.filter(ChatSlot.slot > 0).all()
+    
+    # Extract the dates
+    available_dates = [slot.from_dtime.strftime('%Y-%m-%d') for slot in available_dates]
+
 
     # Define paths
     base_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_id)
@@ -96,7 +206,7 @@ def schedule_step3():
     os.makedirs(bos_path, exist_ok=True)
 
     # Handle BOS image
-    img_bos = request.files.get('img_bos')
+    img_bos = request.files.get('img_bos')  # Use parentheses () instead of square brackets []
     img_bos_path = None
     if img_bos and img_bos.filename:
         bos_filename = secure_filename(img_bos.filename)
@@ -105,26 +215,42 @@ def schedule_step3():
 
     # Handle issue images
     img_issues_paths = []
+
     for i in range(1, 5):
         img_issue = request.files.get(f'img_issue_{i}')
+        
         if img_issue and img_issue.filename:
+            # Secure the filename
             issue_filename = secure_filename(img_issue.filename)
+            
+            # Create the full file path
             issue_file_path = os.path.join(issues_path, issue_filename)
+            
+            # Save the file to the specified path
             img_issue.save(issue_file_path)
+            
+            # Append the path to the list
             img_issues_paths.append(issue_file_path)
+            logging.debug(f"Saved img_issue_{i} at: {issue_file_path}")
+        else:
+            # Append None or an empty string if no file was uploaded
+            img_issues_paths.append(None)
+            logging.debug(f"No file uploaded for img_issue_{i}")
     
 
     return render_template('schedule/step3.html', name=name, issue=issue, contactNum=contactNum,
-                           address=address, modelNum=modelNum, serialNum=serialNum, img_bos=img_bos_path,
-                           img_issues=img_issues_paths, warrantyStatus=warrantyStatus, city=city, state=state,
-                           zipcode=zipcode, email=email,unique_id=unique_id)
+                           address=address, modelNum=modelNum, serialNum=serialNum, img_issues_paths=img_issues_paths,
+                           img_bos_path=img_bos_path, warrantyStatus=warrantyStatus, city=city, state=state,
+                           zipcode=zipcode, email=email,unique_id=unique_id, available_dates=available_dates)
 
 
-@app.route('/schedule/confirm', methods=['GET','POST'])
+@app.route('/schedule/confirm', methods=['POST'])
 def schedule_confirm():
+    error_message = None
+    user_info = UserInfo.query.filter_by(unique_id=request.form['unique_id']).first()
     try:
         # Collect form data
-        date = request.form['date']
+        selected_date = datetime.strptime(request.form['datepicker'] + " 00:00:00", '%Y-%m-%d %H:%M:%S')
         name = request.form['name']
         contactNum = request.form['contactNum']
         address = request.form['address']
@@ -138,47 +264,65 @@ def schedule_confirm():
         zipcode = request.form['zipcode']
         email = request.form['email']
         warrantyStatus = request.form['warrantyStatus']
-        img_bos_path = request.form['img_bos']
-        img_issues_paths = request.form.getlist('img_issues')
+        img_bos_path = request.form['img_bos_path']
+        img_issues_paths = request.form.getlist('img_issues_paths')
         unique_id = request.form['unique_id']
 
+        chat_slot = ChatSlot.query.filter(
+            ChatSlot.zone == 'E',
+            func.date(ChatSlot.from_dtime) <= selected_date.date(),
+            func.date(ChatSlot.to_dtime) >= selected_date.date(),
+        ).first()
 
-        # Save the data to the database
-        user_info = UserInfo(
-            unique_id=unique_id,
-            name=name,
-            contactNum=contactNum,
-            address=address,
-            modelNum=modelNum,
-            product_type=product_type,
-            product_category=product_category,
-            serialNum=serialNum,
-            issue=issue,
-            city=city,
-            state=state,
-            zipcode=zipcode,
-            email=email,
-            warrantyStatus=warrantyStatus,
-            img_bos=img_bos_path,
-            img_issues=",".join(img_issues_paths)
-        )
+        if chat_slot is None:
+            # No matching slot found
+            error_message = "No available slot found for the selected date. Please go back and choose another date."
+        elif chat_slot.slot <= 0:
+            # Slot is no longer available
+            error_message = "The selected slot is no longer available. Please go back and choose another date."
+        else:
+            # Proceed with the confirmation process if the slot is available
+            chat_slot.slot -= 1
+            chat_slot.updated_on = datetime.now()
+        
+        user = UserInfo.query.filter_by(unique_id=unique_id).first()
+
+        if not user == None:
+            user.appointment_date = selected_date
+        else:     
+            # Save the data to the database
+            user_info = UserInfo(
+                appointment_date=selected_date,
+                unique_id=unique_id,
+                name=name,
+                contactNum=contactNum,
+                address=address,
+                modelNum=modelNum,
+                product_type=product_type,
+                product_category=product_category,
+                serialNum=serialNum,
+                issue=issue,
+                city=city,
+                state=state,
+                zipcode=zipcode,
+                email=email,
+                warrantyStatus=warrantyStatus,
+                img_bos=img_bos_path,
+                img_issues=",".join(img_issues_paths),
+            )
 
         db.session.add(user_info)
         db.session.commit()
-
+        
         return render_template('schedule/confirm.html', name=name, contactNum=contactNum, address=address, modelNum=modelNum, 
-                               serialNum=serialNum, img_bos=img_bos_path, img_issues=img_issues_paths, warrantyStatus=warrantyStatus, 
-                               city=city, state=state, zipcode=zipcode, email=email, issue=issue, date=date, 
-                               product_type=product_type, product_category=product_category, unique_id=unique_id)
+                               serialNum=serialNum, img_bos_path=img_bos_path, img_issues_paths=img_issues_paths, warrantyStatus=warrantyStatus, 
+                               city=city, state=state, zipcode=zipcode, email=email, issue=issue, selected_date=selected_date, 
+                               product_type=product_type, product_category=product_category, unique_id=unique_id, error_message=error_message)
     except Exception as e:
         logging.error(f'Error during confirmation: {e}')
-        logging.debug(f"Received img_bos_path: {img_bos_path}")
-        logging.debug(f"Received img_issues_paths: {img_issues_paths}")
-        logging.debug(f"Received unique_id: {unique_id}")
+        return f'An error occurred during the file upload process.{unique_id}'
 
-        return "An error occurred during the file upload process."
-
-@app.route('/uploads/<unique_id>/<filename>')
+@app.route('/uploads/<unique_id>/<path:filename>')
 def uploads(unique_id,filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], unique_id), filename)
 
@@ -188,6 +332,7 @@ def reschedule_step1():
 
 @app.route('/reschedule/step2', methods=['POST'])
 def reschedule_step2():
+    ##routing with userID with args = request.args
     return render_template('reschedule/step2.html')
 
 @app.route('/reschedule/confirm', methods=['POST'])
@@ -200,19 +345,23 @@ def cancel_step1():
 
 @app.route('/cancel/step2',methods=['POST'])
 def cancel_step2():
+    ##routing with userID with args = request.args
     return render_template('cancel/step2.html')
 
 @app.route('/cancel/confirm',methods=['POST'])
 def cancel_confirm():
     return render_template('cancel/confirm.html')
 
+
+admin.add_view(ModelView(UserInfo, db.session))
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Ensure that all database tables are created
+        add_chat_slots_from_csv('chatslot_LA.csv')
     app.run(port=8000, debug=True)
 
 
 
- # Schedule / confirm -> Find the date in Slot and Update to minus 1. if Sloct == 0, then show error message + update time stamp
-        # Reschedule / Step 2 -> Find the date in ticket number and update the date in Slot to minus 1, the old date in slot to plus 1. if Sloct == 0, then show error message + update time stamp 
-        # Cancel / Step 2 -> Find the date in ticket number and update the date in Slot to plus 1. + update time stamp
+# Reschedule / Step 2 -> Find the date in ticket number and update the date in Slot to minus 1, the old date in slot to plus 1. if Sloct == 0, then show error message + update time stamp 
+# Cancel / Step 2 -> Find the date in ticket number and update the date in Slot to plus 1. + update time stamp

@@ -9,33 +9,40 @@
     <div class="container">
         <h1>Ticket Confirmation</h1>
         <div class="detail-group">
+            {% if error_message %}
+                <div class="error">
+                    <p>{{ error_message }}</p>
+                    <button type="button" class="button back-button" onclick="window.history.back()">Go Back to Select Date</button>
+
+                </div>
+            {% else %}
             <h2>Your Ticket Number : {{unique_id}}</h2>
             <p>Customer Name: {{ name }}</p>
             <p>Contact Number: {{ contactNum }}</p>
             <p>Location: {{ address }}</p>
-            <p>Date: {{ date }}</p>
+            <p>Appointment Date: {{ selected_date }}</p>
             <p>Model Number: {{ modelNum }}</p>
             <p>Product Type: {{ product_type }}</p>
             <p>Product Category: {{ product_category }}</p>
             <p>Serial Number: {{ serialNum }}</p>
             <p>Issue: {{ issue }}</p>
             <p>Warranty Status: {{ warrantyStatus }}</p>
-        </div>
+                <div class="image-group">
+                    <h3>Bill of Sale Image</h3>
+                    {% if img_bos_path %}
+                    <img src="{{ url_for('uploads', unique_id=unique_id, filename='/'.join(img_bos_path.split('/')[-2:])) }}"  width="200">
+                    {% endif %}
+                <h3>Issue Images</h3>
+                {% for issue_image in img_issues_paths %}
+                    {% if issue_image %}
+                        <img src="{{ url_for('uploads', unique_id=unique_id, filename='/'.join(issue_image.split('/')[-2:])) }}"  width="200">
 
-        <div class="image-group">
-            <h3>Bill of Sale Image</h3>
-            {% if img_bos %}
-                <img src="{{ url_for('uploads', unique_id=unique_id, filename=img_bos.split('/')[-1]) }}" alt="BOS Image" width="200">
+                    {% endif %}
+                {% endfor %}
+                </div>
             {% endif %}
-
-            <h3>Issue Images</h3>
-            {% for issue_image in img_issues %}
-            {% if img_issues %}
-            <img src="{{ url_for('uploads', unique_id=unique_id, filename=issue_image.split('/')[-1]) }}" alt="Issue Image" width="200">
-                {% endif %}
-            {% endfor %}
-            
         </div>
+
     </div>
 </body>
 </html>
