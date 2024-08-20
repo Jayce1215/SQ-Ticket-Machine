@@ -9,17 +9,33 @@
 <body>
     <div class="container">
         <h1>Step 1: View Your Schedule</h1>
-        <p style="margin-left: 28%;">
-            Type your ticket number or serial number to view your schedule.
+        <p style="text-align: center;">
+            Type your information to reschedule your ticket.
         </p>
-    <form class="step-form" action="{{ url_for('reschedule_step2') }}" method="post" enctype="multipart/form-data">
-        <label for="ticketNum">Ticket Number:</label>
-        <input type="text" id="ticketNum" name="ticketNum" placeholder="Ticket Number" >
-        <button type="submit" class="button">View Schedule</button>
-
-        <label for="serialNum">Serial Number:</label>
-        <input type="text" id="serialNum" name="serialNum" placeholder="Serial Number">
-        <button type="submit" class="button">View Schedule</button>
+        {% if error_message %}
+            <form class="step-form" action="{{ url_for('reschedule_step2') }}" method="post" enctype="multipart/form-data">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Name" value="{{name}}" required>
+        
+                <label for="contactNum">Contact Number:</label>
+                <input type="text" id="contactNum" name="contactNum" placeholder="Contact Number" value="{{contactNum}}" required>
+        
+                <label for="ticketNum">Ticket Number:</label>
+                <input type="text" id="ticketNum" name="ticketNum" placeholder="Ticket Number" value="{{ticketNum}}" required>
+                <button type="submit" class="button">View Schedule</button>
+                <p style="color: red;">{{ error_message }}</p>
+        {% else %}
+            <form class="step-form" action="{{ url_for('reschedule_step2') }}" method="post" enctype="multipart/form-data">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Name" required>
+        
+                <label for="contactNum">Contact Number:</label>
+                <input type="text" id="contactNum" name="contactNum" placeholder="Contact Number"required >
+        
+                <label for="ticketNum">Ticket Number:</label>
+                <input type="text" id="ticketNum" name="ticketNum" placeholder="Ticket Number" required>
+                <button type="submit" class="button">View Schedule</button>
+        {% endif %}
     </div>
 </body>
 </html>

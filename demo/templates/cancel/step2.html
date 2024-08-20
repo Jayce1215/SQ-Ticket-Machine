@@ -8,23 +8,20 @@
 </head>
 <body>
     <div class="container">
-        <h1>Step 2: Cancel the Schedule</h1>
+        <h1>Step 2: Cancel the Ticket</h1>
         <div style="margin-left: 28%;">
-            <h3>Your Ticket Number : {{unique_id}}</h3>
-            <p>Customer Name: {{ name }}</p>
-            <p>Contact Number: {{ contactNum }}</p>
-            <p>Location: {{ address }}</p>
-            <p>Date: {{ date }}</p>
-            <p>Model Number: {{ modelNum }}</p>
-            <p>Product Type: {{ product_type }}</p>
-            <p>Product Category: {{ product_category }}</p>
-            <p>Serial Number: {{ serialNum }}</p>
-            <p>Issue: {{ issue }}</p>
-            <p>Warranty Status: {{ warrantyStatus }}</p>
+            <h3>Your Ticket({{unique_id}}) is scheduled on: 
+                <br><br>
+                {{ appointment_date }}
+            </h3>
+            <h2>
+                Do you want to cancel the ticket?
+            </h2>
         </div>
          
-        <form class="step-form" action="{{ url_for('cancel_confirm') }}" method="post" enctype="multipart/form-data">
-        <button type="submit" class="button" >Cancel</button>
+        <form class="step-form" action="{{ url_for('cancel_confirm',unique_id=unique_id) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="name" value="{{name}}">
+            <button type="submit" class="button" >Cancel</button>
         </form>
     </div>
 </body>

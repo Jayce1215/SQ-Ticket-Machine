@@ -10,17 +10,17 @@
     <div class="container">
         <h1>Confirmed</h1>
         <div style="margin-left: 28%;">
-            <h3>Your Ticket Number : {{unique_id}}</h3>
-            <p>Customer Name: {{ name }}</p>
-            <p>Contact Number: {{ contactNum }}</p>
-            <p>Location: {{ address }}</p>
-            <p>Date: {{ date }}</p>
-            <p>Model Number: {{ modelNum }}</p>
-            <p>Product Type: {{ product_type }}</p>
-            <p>Product Category: {{ product_category }}</p>
-            <p>Serial Number: {{ serialNum }}</p>
-            <p>Issue: {{ issue }}</p>
-            <p>Warranty Status: {{ warrantyStatus }}</p>
+            {% if error_message_availability %}
+                <div class="error">
+                    <p>{{ error_message_availability }}</p>
+                    <button type="button" class="button back-button" onclick="window.history.back()">Go Back to Select Date</button>
+                </div>
+            {% else %}
+                <h3>Thank you {{name}}, Your Request has been accepted ! <Br> <Br>
+                    Your original schedule({{unique_id}}) has been successfully changed to: <br><br>
+                     {{selected_date}} 
+                </h3>
+            {% endif %}
         </div>
          
 </body>

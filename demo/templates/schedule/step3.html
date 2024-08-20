@@ -14,19 +14,25 @@
                 dateInput.click();
             });
         });
-
     </script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-
-
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const availableDates = JSON.parse('{{ available_dates|tojson|safe }}');
+        // Initialize Flatpickr
+        flatpickr("#datepicker", {
+            dateFormat: "Y-m-d",
+            enable: availableDates,  // Only enable available dates
+            disableMobile: true,  // Ensures desktop picker on mobile devices too
+        });
+    });
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Step 3: Select Visiting Date</h1>
-        <form class="step-form" action="{{ url_for('schedule_confirm') }}" method="post" enctype="multipart/form-data">
+        <form class="step-form" action="{{ url_for('schedule_confirm', unique_id=unique_id) }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="name" value="{{ name }}">
             <input type="hidden" name="contactNum" value="{{ contactNum }}">
             <input type="hidden" name="address" value="{{ address }}">
@@ -49,25 +55,20 @@
             <div id="date-container">
             <input type="text" id="datepicker" name="datepicker" placeholder="Select a date" required style="width: 45%;">
             </div>
-
-            <div class="button-container">
-                <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
-                <button type="submit" class="button">Next</button>
-            </div>
+            {% if error_message_user %}
+                <p class="error-message">{{ error_message_user }}</p>
+                <div class="button-container">
+                    <a href="{{ url_for('reschedule_step1') }}" class="button" style="width: 13%; display: inline-block;  align-items: center; text-decoration: none;">Reschedule</a>
+                </div>
+             {% else %}
+                <div class="button-container">
+                    <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
+                    <button type="submit" class="button">Next</button>
+                </div>
+            {% endif %}
         </form>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-        const availableDates = JSON.parse('{{ available_dates|tojson|safe }}');
-        
-        // Initialize Flatpickr
-        flatpickr("#datepicker", {
-            dateFormat: "Y-m-d",
-            enable: availableDates,  // Only enable available dates
-            disableMobile: true,  // Ensures desktop picker on mobile devices too
-        });
-    });
-    </script>
+
 </body>
 </html>
 

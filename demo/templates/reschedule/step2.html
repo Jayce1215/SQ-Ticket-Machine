@@ -4,32 +4,46 @@
     <meta charset="UTF-8">
     <title>Step 2 - Service Quick</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='schedule_step1.css') }}">
-   
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const dateInput = document.getElementById('date');
+            const dateContainer = document.getElementById('date-container');
+            
+            dateContainer.addEventListener('click', () => {
+                dateInput.click();
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const availableDates = JSON.parse('{{ available_dates|tojson|safe }}');
+        // Initialize Flatpickr
+        flatpickr("#datepicker", {
+            dateFormat: "Y-m-d",
+            enable: availableDates,  // Only enable available dates
+            disableMobile: true,  // Ensures desktop picker on mobile devices too
+        });
+    });
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Step 2: Change the Schedule</h1>
         <div style="margin-left: 28%;">
-            <h3>Your Ticket Number : {{unique_id}}</h3>
-            <p>Customer Name: {{ name }}</p>
-            <p>Contact Number: {{ contactNum }}</p>
-            <p>Location: {{ address }}</p>
-            <p>Date: {{ date }}</p>
-            <p>Model Number: {{ modelNum }}</p>
-            <p>Product Type: {{ product_type }}</p>
-            <p>Product Category: {{ product_category }}</p>
-            <p>Serial Number: {{ serialNum }}</p>
-            <p>Issue: {{ issue }}</p>
-            <p>Warranty Status: {{ warrantyStatus }}</p>
+            <p>Your Ticket({{ticketNum}}) is scheduled on:<br><h3>{{appointment_date}}</h3></p>
         </div>
-         
-        <form class="step-form" action="{{ url_for('reschedule_confirm') }}" method="post" enctype="multipart/form-data">
-            <div id="date-container">
-            <h2 >Change the Date:</h2>
-            <input type="date" id="date" name="date" required style="width: 100%;" onclick="this.showPicker();">
-        </div>
-        <button type="submit" class="button" >Reschedule</button>
+        <form class="step-form" action="{{ url_for('reschedule_confirm',unique_id=unique_id) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="name" value="{{ name }}">
+            <h3>Select a new date:</h3>
+            <input type="text" id="datepicker" name="datepicker" placeholder="Select a date" required style="width: 25%;  margin-top: 0px; display: flex; align-items: center;" >
+            <div class="button-container">
+                <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
+                <button type="submit" class="button" >Reschedule</button>
+            </div>
         </form>
     </div>
+
 </body>
 </html>
