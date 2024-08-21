@@ -401,7 +401,7 @@ def reschedule_confirm(unique_id):
             ChatSlot.zone == 'E',
             func.date(ChatSlot.from_dtime) <= original_date.date(),
             func.date(ChatSlot.to_dtime) >= original_date.date(),
-        ).update({'slot': ChatSlot.slot + 1})
+        ).update({'slot': ChatSlot.slot + 1, 'updated_on': datetime.now()})
 
         # update the user info with the new date
         UserInfo.query.filter_by(unique_id=unique_id).update({'appointment_date': selected_date})
@@ -455,7 +455,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Ensure that all database tables are created
         add_chat_slots_from_csv('chatslot_LA.csv')
-    app.run(port=8000, debug=True)
+    app.run(port=8001, debug=True)
 
 
 # 1. time issue 2. 

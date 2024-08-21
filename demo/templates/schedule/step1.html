@@ -4,7 +4,25 @@
     <meta charset="UTF-8">
     <title>Step 1 - Service Quick</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='schedule_step1.css') }}">
+    <style>
+        .dropdown-container {
+            margin-bottom: 20px;
+        }
 
+        .dropdown-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #city-dropdown-container {
+            display: block; /* Hidden until a state is selected */
+        }
+
+        .dropdown {
+            width: 300px;
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -19,26 +37,111 @@
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" placeholder="Email" >
 
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" placeholder="Address" >
+            <label for="address">Street Address:</label>
+            <input type="text" id="address" name="address" placeholder="17700 Avalon Blvd #153" >
             
-            <label for="state">State:</label>
-            <input type="text" id="state" name="state" placeholder="State" >
-
-            <label for="city">City:</label>
-            <input type="text" id="city" name="city" placeholder="City" >
+                <label for="state">State:</label>
+                <select name="state" id="state" class="dropdown-content">
+                    <option value="">Select a state</option>
+                </select>
+                
+                <label for="city">City:</label>
+                <select name="city" id="city" class="dropdown-content">
+                    <option value="">Select a city</option>
+                </select>
 
             <label for="zipcode">Zip Code:</label>
             <input type="text" id="zipcode" name="zipcode" placeholder="Zip Code" >
 
-            
             <div class="button-container">
                 <button type="button" class="button back-button" onclick="window.history.back()">Back</button>
                 <button type="submit" class="button">Next</button>
             </div>
-
         </form>
     </div>
+    <script>
+        const states = {
+            "California": ["Los Angeles", "San Francisco", "San Diego", "Sacramento"],
+            "Texas": ["Houston", "Dallas", "Austin", "San Antonio"],
+            "New York": ["New York City", "Buffalo", "Rochester", "Albany"],
+            "Florida": ["Miami", "Orlando", "Tampa", "Jacksonville"],
+            "Illinois": ["Chicago", "Springfield", "Peoria", "Rockford"],
+            "Pennsylvania": ["Philadelphia", "Pittsburgh", "Harrisburg", "Erie"],
+            "Ohio": ["Columbus", "Cleveland", "Cincinnati", "Toledo"],
+            "Georgia": ["Atlanta", "Savannah", "Augusta", "Macon"],
+            "North Carolina": ["Charlotte", "Raleigh", "Greensboro", "Durham"],
+            "Michigan": ["Detroit", "Grand Rapids", "Lansing", "Ann Arbor"],
+            "New Jersey": ["Newark", "Jersey City", "Paterson", "Elizabeth"],
+            "Virginia": ["Virginia Beach", "Norfolk", "Chesapeake", "Richmond"],
+            "Washington": ["Seattle", "Spokane", "Tacoma", "Vancouver"],
+            "Arizona": ["Phoenix", "Tucson", "Mesa", "Chandler"],
+            "Massachusetts": ["Boston", "Worcester", "Springfield", "Cambridge"],
+            "Tennessee": ["Memphis", "Nashville", "Knoxville", "Chattanooga"],
+            "Indiana": ["Indianapolis", "Fort Wayne", "Evansville", "South Bend"],
+            "Missouri": ["Kansas City", "St. Louis", "Springfield", "Columbia"],
+            "Maryland": ["Baltimore", "Frederick", "Rockville", "Gaithersburg"],
+            "Wisconsin": ["Milwaukee", "Madison", "Green Bay", "Kenosha"],
+            "Colorado": ["Denver", "Colorado Springs", "Aurora", "Fort Collins"],
+            "Minnesota": ["Minneapolis", "St. Paul", "Rochester", "Duluth"],
+            "South Carolina": ["Charleston", "Columbia", "North Charleston", "Mount Pleasant"],
+            "Alabama": ["Birmingham", "Montgomery", "Mobile", "Huntsville"],
+            "Louisiana": ["New Orleans", "Baton Rouge", "Shreveport", "Lafayette"],
+            "Kentucky": ["Louisville", "Lexington", "Bowling Green", "Owensboro"],
+            "Oregon": ["Portland", "Salem", "Eugene", "Gresham"],
+            "Oklahoma": ["Oklahoma City", "Tulsa", "Norman", "Broken Arrow"],
+            "Connecticut": ["Bridgeport", "New Haven", "Stamford", "Hartford"],
+            "Iowa": ["Des Moines", "Cedar Rapids", "Davenport", "Sioux City"],
+            "Mississippi": ["Jackson", "Gulfport", "Southaven", "Hattiesburg"],
+            "Arkansas": ["Little Rock", "Fort Smith", "Fayetteville", "Springdale"],
+            "Utah": ["Salt Lake City", "West Valley City", "Provo", "West Jordan"],
+            "Nevada": ["Las Vegas", "Henderson", "Reno", "North Las Vegas"],
+            "Kansas": ["Wichita", "Overland Park", "Kansas City", "Topeka"],
+            "New Mexico": ["Albuquerque", "Las Cruces", "Rio Rancho", "Santa Fe"],
+            "Nebraska": ["Omaha", "Lincoln", "Bellevue", "Grand Island"],
+            "West Virginia": ["Charleston", "Huntington", "Parkersburg", "Morgantown"],
+            "Idaho": ["Boise", "Nampa", "Meridian", "Idaho Falls"],
+            "Hawaii": ["Honolulu", "Pearl City", "Hilo", "Kailua"],
+            "Maine": ["Portland", "Lewiston", "Bangor", "South Portland"],
+            "New Hampshire": ["Manchester", "Nashua", "Concord", "Dover"],
+            "Rhode Island": ["Providence", "Warwick", "Cranston", "Pawtucket"],
+            "Montana": ["Billings", "Missoula", "Great Falls", "Bozeman"],
+            "Delaware": ["Wilmington", "Dover", "Newark", "Middletown"],
+            "South Dakota": ["Sioux Falls", "Rapid City", "Aberdeen", "Brookings"],
+            "North Dakota": ["Fargo", "Bismarck", "Grand Forks", "Minot"],
+            "Alaska": ["Anchorage", "Fairbanks", "Juneau", "Sitka"],
+            "Vermont": ["Burlington", "South Burlington", "Rutland", "Barre"],
+            "Wyoming": ["Cheyenne", "Casper", "Laramie", "Gillette"]
+        };
+
+        const stateSelect = document.getElementById("state");
+        const citySelect = document.getElementById("city");
+
+        for (let state in states) {
+            const option = document.createElement("option");
+            option.value = state;
+            option.textContent = state;
+            stateSelect.appendChild(option);
+        }
+
+        stateSelect.addEventListener('change', function() {
+            const selectedState = this.value;
+            citySelect.innerHTML = '<option value="">Select a city...</option>'; // Reset city dropdown
+
+            if (selectedState) {
+                const cities = states[selectedState];
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+
+            } 
+        });
+            
+
+        
+    </script>
 </body>
 </html>
 

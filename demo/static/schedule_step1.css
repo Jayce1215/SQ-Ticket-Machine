@@ -55,7 +55,7 @@ h1 {
     margin-left: 43%;
 }
 
-.step-form input[type="text"], .step-form input[type="tel"], .step-form textarea, .step-form input[type="date"], .step-form input[type="email"] {
+.step-form input[type="text"], .step-form input[type="tel"], .step-form textarea, .step-form input[type="date"], .step-form input[type="email"] , select {
     width: 55%;
     padding: 10px;
     margin-top: 15px;

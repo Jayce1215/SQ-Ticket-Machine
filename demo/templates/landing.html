@@ -15,22 +15,86 @@
             <a href="{{ url_for('cancel_step1') }}" class="button"> Cancel</a>
             <!-- <h2>Or</h2> -->
         </div>
-    </div>
-    <div class="prompt-container">
-        <div class="prompt-messages" id="prompt-messages">
-            <!-- prompt messages will appear here -->
+    <!-- The "Got Question?" button -->
+    <div class="question-button" id="question-button">Got Question?</div>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbot-container">
+        <div class="chatbot-header">
+            Ask Out Chat bot !
         </div>
-        <div class="prompt-input-container">
-            <!-- <input type="text" id="prompt-input" placeholder="Ask our chatbot. e.g: " /> -->
+        <div class="chatbot-body" id="chatbot-body">
+            <!-- Chat messages will appear here -->
         </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chat-input" placeholder="Type your message...">
+            <button type="button" id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div> 
     </div>
+
+    <script>
+        // Toggle chatbot visibility
+        document.getElementById('question-button').addEventListener('click', function() {
+            var chatbot = document.getElementById('chatbot-container');
+            chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        document.getElementById('chat-input').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent the default action (form submission)
+                sendMessage(); // Trigger the sendMessage function
+            }
+        });
+
+        // Send message function
+        function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+
+        if (message !== '') {
+            // Create user message element
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message', 'user');
+            messageContainer.textContent = `${message}`;
+
+            // Append to the chat body
+            document.querySelector('.chatbot-body').appendChild(messageContainer);
+
+            // Clear the input
+            input.value = '';
+
+            // Simulate bot response (you would replace this with your actual bot logic)
+            setTimeout(() => {
+                const botMessageContainer = document.createElement('div');
+                botMessageContainer.classList.add('message', 'bot');
+                botMessageContainer.textContent = 'This is a reply from the bot.';
+                document.querySelector('.chatbot-body').appendChild(botMessageContainer);
+            }, 500);
+        }
+    }
+
+        // Add message to chat body
+        function addMessage(text, sender) {
+            var chatBody = document.getElementById('chatbot-body');
+            var newMessage = document.createElement('div');
+            newMessage.classList.add('message', sender);
+            newMessage.textContent = text;
+            chatBody.appendChild(newMessage);
+            chatBody.scrollTop = chatBody.scrollHeight; // Scroll to the bottom
+        }
+
+        // Hide chatbot when clicking outside
+        document.addEventListener('click', function(event) {
+            var chatbot = document.getElementById('chatbot-container');
+            var isClickInside = chatbot.contains(event.target) || document.getElementById('question-button').contains(event.target);
+
+            if (!isClickInside) {
+                chatbot.style.display = 'none';
+            }
+        });
+    </script>
 
 </body>
 </html>
 
-<!-- 
-<div class="prompt-container">
-    <input type="text" id="promptbot" name="chatbot">
-    <label for="chatbot">Ask our Chatbot</label>
-    <div class="underline"></div>
-</div>     -->
