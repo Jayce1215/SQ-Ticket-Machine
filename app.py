@@ -101,27 +101,30 @@ class ChatSlot(db.Model):
     
 
 # Add the slots to the database
-csv_file_path='chatslot_LA.csv'
+csv_file_path='./data/slot_result.csv'
+
+def parse_datetime(date_str):
+    for fmt in ('%m/%d/%Y %H:%M', '%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M'):
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+    return None  # or raise an error if preferred
+    
 def add_chat_slots_from_csv(csv_file_path):
     df = pd.read_csv(csv_file_path)
-    
-    with app.app_context():  # Ensure the app context is active
-        for index, row in df.iterrows():  # Corrected: iterrows returns index and row
+        
+    with app.app_context():
+        for index, row in df.iterrows():
             existing_slot = ChatSlot.query.filter_by(slot_id=row['SLOTID']).first()
             if existing_slot:
                 print(f"Slot ID {row['SLOTID']} already exists in the database. Skipping...")
                 continue
-            # Convert dates to strings if they're not already
-            created_on_str = str(row['CREATEDON']) if not pd.isna(row['CREATEDON']) else None
-            updated_on_str = str(row['UPDATEDON']) if not pd.isna(row['UPDATEDON']) else None
-            from_dtime_str = str(row['FROMDTIME']) if not pd.isna(row['FROMDTIME']) else None
-            to_dtime_str = str(row['TODTIME']) if not pd.isna(row['TODTIME']) else None
 
-            # Parse the dates only if they're not None
-            created_on = datetime.strptime(created_on_str, '%Y-%m-%d %H:%M:%S.%f') if created_on_str else None
-            updated_on = datetime.strptime(updated_on_str, '%Y-%m-%d %H:%M:%S.%f') if updated_on_str else None
-            from_dtime = datetime.strptime(from_dtime_str, '%Y-%m-%d %H:%M:%S.%f') if from_dtime_str else None
-            to_dtime = datetime.strptime(to_dtime_str, '%Y-%m-%d %H:%M:%S.%f') if to_dtime_str else None
+            created_on = parse_datetime(str(row['CREATEDON'])) if not pd.isna(row['CREATEDON']) else None
+            updated_on = parse_datetime(str(row['UPDATEDON'])) if not pd.isna(row['UPDATEDON']) else None
+            from_dtime = parse_datetime(str(row['FROMDTIME'])) if not pd.isna(row['FROMDTIME']) else None
+            to_dtime = parse_datetime(str(row['TODTIME'])) if not pd.isna(row['TODTIME']) else None
 
             chat_slot = ChatSlot(
                 nickname=row['NICKNAME'],
@@ -138,8 +141,7 @@ def add_chat_slots_from_csv(csv_file_path):
                 product_category=row['PRODUCTCATEGORY']
             )
             db.session.add(chat_slot)
-            db.session.commit()
-
+        db.session.commit()
 @app.route('/')
 def landing():
     return render_template('landing.html')
@@ -194,7 +196,7 @@ def schedule_step3():
     # Query the available dates where slot > 0
     available_dates = ChatSlot.query.filter(
         ChatSlot.slot > 0, 
-        ChatSlot.zone == "E",
+        ChatSlot.zone == "D",
         func.date(ChatSlot.from_dtime) >= today
         ).all()
     
@@ -262,7 +264,7 @@ def schedule_confirm(unique_id):
             today = datetime.today().date()
             available_dates = ChatSlot.query.filter(
             ChatSlot.slot > 0, 
-            ChatSlot.zone == "E",
+            ChatSlot.zone == "D",
             func.date(ChatSlot.from_dtime) >= today
             ).all()
             available_dates = [slot.from_dtime.strftime('%Y-%m-%d') for slot in available_dates]
@@ -294,7 +296,7 @@ def schedule_confirm(unique_id):
             
         
             chat_slot = ChatSlot.query.filter(
-                    ChatSlot.zone == 'E',
+                    ChatSlot.zone == 'D',
                     func.date(ChatSlot.from_dtime) <= selected_date.date(),
                     func.date(ChatSlot.to_dtime) >= selected_date.date(),
                 ).first()
@@ -360,7 +362,7 @@ def reschedule_step2():
     # Query the available dates where slot > 0
     available_dates = ChatSlot.query.filter(
         ChatSlot.slot > 0, 
-        ChatSlot.zone == "E",
+        ChatSlot.zone == "D",
         func.date(ChatSlot.from_dtime) >= today
         ).all()
 
@@ -380,7 +382,7 @@ def reschedule_confirm(unique_id):
     name = request.form['name']
 
     chat_slot = ChatSlot.query.filter(
-            ChatSlot.zone == 'E',
+            ChatSlot.zone == 'D',
             func.date(ChatSlot.from_dtime) <= selected_date.date(),
             func.date(ChatSlot.to_dtime) >= selected_date.date(),
         ).first()
@@ -398,7 +400,7 @@ def reschedule_confirm(unique_id):
         # update the original slot with +1
         original_date = UserInfo.query.filter_by(unique_id=unique_id).first().appointment_date
         ChatSlot.query.filter(
-            ChatSlot.zone == 'E',
+            ChatSlot.zone == 'D',
             func.date(ChatSlot.from_dtime) <= original_date.date(),
             func.date(ChatSlot.to_dtime) >= original_date.date(),
         ).update({'slot': ChatSlot.slot + 1, 'updated_on': datetime.now()})
@@ -438,7 +440,7 @@ def cancel_confirm(unique_id):
 
     # update the original slot with +1
     ChatSlot.query.filter(
-            ChatSlot.zone == 'E',
+            ChatSlot.zone == 'D',
             func.date(ChatSlot.from_dtime) <= appointment_date.date(),
             func.date(ChatSlot.to_dtime) >= appointment_date.date(),
         ).update({'slot': ChatSlot.slot + 1, 'updated_on': datetime.now()})
@@ -454,7 +456,7 @@ admin.add_view(ModelView(UserInfo, db.session))
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Ensure that all database tables are created
-        add_chat_slots_from_csv('chatslot_LA.csv')
+        add_chat_slots_from_csv('slot_result.csv')
     app.run(port=8001, debug=True)
 
 
